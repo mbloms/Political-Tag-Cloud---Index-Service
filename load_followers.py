@@ -19,16 +19,15 @@ def main():
     get_all_followers(twitter,f[14]) #14
     
 
-def get_all_followers(twitter,user):
+def get_all_followers(conn,user):
     cursor = -1 #default cursor
         
     while cursor != 0:
         
-        twitter = connection
         current_cursor = cursor
 
         try:
-            response = twitter.get_followers_ids(screen_name = str(user),cursor = cursor)
+            response = conn.get_followers_ids(screen_name = str(user),cursor = cursor)
 
             for follower_id in response['ids']:
                 print(follower_id)
