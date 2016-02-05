@@ -5,7 +5,7 @@ class ConnectionList:
 	"List of (Twython) objects that rotates every time a 'connection' is extracted."
 	def __init__(self,arr = [], filepath = ""):
 		if filepath == "":
-			arr = readFile()
+			arr = readFile(filepath)
 		#The array with all objects
 		self.arr = arr
 		#Start index
@@ -18,9 +18,9 @@ class ConnectionList:
 	def __rotate(self):
 		self.index = (self.index + 1) % len(self.arr)
 
-def readFile():
+def readFile(filepath):
 	lst = []
-	txt = open("accesses.txt", 'r')
+	txt = open(filepath, 'r')
 	#Read first line
 	line = txt.readline()
 	#While there is more
