@@ -4,7 +4,7 @@ from twython import Twython
 class ConnectionList:
 	"List of (Twython) objects that rotates every time a 'connection' is extracted."
 	def __init__(self,arr = [], filepath = ""):
-		if filepath == "":
+		if filepath != "":
 			arr = readFile(filepath)
 		#The array with all objects
 		self.arr = arr
@@ -26,6 +26,7 @@ def readFile(filepath):
 	#While there is more
 	while line != "":
 		#Make Twython objects of four lines. If the lines in the file is not devisable by 4, something will go bad.
-		lst.append(Twython(line,txt.readline(),txt.readline(),txt.readline()))
+		lst.append(Twython(line.strip(),txt.readline().strip(),txt.readline().strip(),txt.readline().strip()))
 		line = txt.readline()
+	txt.close()
 	return lst
