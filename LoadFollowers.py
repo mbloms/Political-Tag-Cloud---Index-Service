@@ -16,7 +16,9 @@ def main():
     
     db = Database.Database()
 
-    getUsersFollowers(f,db)    
+    a = ["AndreasBrommund"]
+
+    getUsersFollowers(a,db)    
   
     db.close()
 
@@ -43,7 +45,6 @@ def getFollowers(user,db):
                     db.commit()
                 except:
                     print("dup")
-                    
                 cursor = response['next_cursor']
 
 
