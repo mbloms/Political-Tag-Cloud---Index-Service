@@ -1,5 +1,6 @@
 # Using Twithon, install with sudo pip3 install twython
 from twython import Twython
+import twythonHelper
 
 class ConnectionList:
 	"List of (Twython) objects that rotates every time a 'connection' is extracted."
@@ -25,8 +26,8 @@ def readFile(filepath):
 	line = txt.readline()
 	#While there is more
 	while line != "":
-		#Make Twython objects of four lines. If the lines in the file is not devisable by 4, something will go bad.
-		lst.append(Twython(line.strip(),txt.readline().strip(),txt.readline().strip(),txt.readline().strip()))
+		#Make Twython objects of two lines, ignoring the first of three. If the lines in the file is not devisable by 3, something will go bad.
+		lst.append(twythonHelper.newTwython(txt.readline, txt.readline))
 		line = txt.readline()
 	txt.close()
 	return lst
