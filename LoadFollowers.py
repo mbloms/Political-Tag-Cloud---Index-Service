@@ -6,17 +6,6 @@ import TwitterUsers as TU
 import json
 
 def main():
-    
-    f = ["socialdemokrat",
-         "vansterpartiet",
-         "miljopartiet",
-         "sdriks",
-         "nya_moderaterna",
-         "liberalerna",
-         "kdriks",
-         "Centerpartiet"]
-    
-
     getUsersFollowers()    
 
 
