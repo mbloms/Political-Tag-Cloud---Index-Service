@@ -62,15 +62,3 @@ class TwitterUsers:
 	def save(self):
 		with open(self.configPath, 'w', encoding='utf8') as outfile:
 			json.dump(self.dict, outfile)
-
-def main():
-	TU = TwitterUsers()
-	for group in TU.getGroups():
-		print(group)
-	TU.addGroup("Bergshamrapartiet")
-	TU.addUserToGroup("Bergshamrapartiet", 1337)
-	TU.addUserToGroup("Bergshamrapartiet", 666)
-	for group in TU.getGroups():
-		print(group)
-
-main()
