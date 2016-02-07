@@ -14,6 +14,7 @@ def main():
          "kdriks",
          "Centerpartiet"]
    
+    
     db = Database.Database()
 
     getUsersFollowers(f,db)    
@@ -28,9 +29,13 @@ def getUsersFollowers(users,db):
             pass 
         finally:
             db.commit()
-        getFollowers(u,db)
 
-def getFollowers(user,db):
+        db.cursor.execute("SELECT groupid FROM grp WHERE name=(%s) LIMIT 1",(u,))
+        groupId = db.cursor.fetchone()[0]
+        
+        getFollowers(u,db,groupId)
+
+def getFollowers(user,db,groupId):
     conn = CL.ConnectionList(filepath="config/access.conf") 
 
     cursor = -1 #default cursor
@@ -47,12 +52,16 @@ def getFollowers(user,db):
                     pass
                 finally:
                     db.commit()
+                    
+                try:
+                    db.cursor.execute("INSERT INTO userInGroup(groupid,userId) VALUES (%s,%s)",(groupId,followerId,))
+                except:
+                    pass
+                finally:
+                    db.commit()
                 cursor = response['next_cursor']
         except TwythonRateLimitError:
             print(":(")
             time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min 
-            print(":)")
-        except TwythonError as err:
-            print(err)
-            
+            print(":)")            
 main()
