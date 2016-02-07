@@ -1,6 +1,5 @@
 # Using Twithon, install with sudo pip3 install twython
 from twython import Twython,TwythonRateLimitError
-import json
 import time
 import ConnectionList as cl
 
@@ -24,7 +23,7 @@ def get_users_followers(users):
 
 
 def get_followers(user):
-    conn = cl.ConnectionList([],"config/access.conf") 
+    conn = cl.ConnectionList(filepath="config/access.conf") 
 
     cursor = -1 #default cursor
         
