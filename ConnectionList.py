@@ -27,7 +27,7 @@ def readFile(filepath):
 	#While there is more
 	while line != "":
 		#Make Twython objects of two lines, ignoring the first of three. If the lines in the file is not devisable by 3, something will go bad.
-		lst.append(twythonHelper.newTwython(txt.readline, txt.readline))
+		lst.append(twythonHelper.newTwython(txt.readline().strip(), txt.readline().strip()))
 		line = txt.readline()
 	txt.close()
 	return lst
