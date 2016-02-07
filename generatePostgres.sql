@@ -1,0 +1,8 @@
+CREATE TABLE grp(
+	groupId SERIAL PRIMARY KEY,
+	name VARCHAR(40),
+	UNIQUE(name)
+);
+CREATE TABLE usr(
+	userId BIGINT PRIMARY KEY
+);
