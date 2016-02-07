@@ -40,7 +40,6 @@ class TwitterUsers:
 			print("Group " + groupName + " not found")
 			return 0
 
-
 	def addUserToGroup(self, groupName, userID):
 		"Add user to group with name groupName and ID userID"
 		try:
@@ -57,7 +56,6 @@ class TwitterUsers:
 			if self.dict[groupName]['users'][i] == userID:
 				self.dict[groupName]['users'].pop(i)
 				self.save()
-				break
 
 	def save(self):
 		with open(self.configPath, 'w', encoding='utf8') as outfile:
