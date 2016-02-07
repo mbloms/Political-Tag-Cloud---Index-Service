@@ -2,6 +2,8 @@
 from twython import Twython,TwythonRateLimitError
 import time
 import ConnectionList as cl
+import TwitterUsers as TU
+import json
 
 def main():
     
@@ -15,12 +17,15 @@ def main():
          "Centerpartiet"]
     
 
-    getUsersFollowers(a)    
+    getUsersFollowers()    
 
 
-def getUsersFollowers(users):
-    for u in users:
-        getFollowers(u)
+def getUsersFollowers():
+    users = TU.TwitterUsers()
+    for group in users.getGroups():
+        # group[0] now contains name and [1] list of users
+        for user in group[1]['users']:
+            getFollowers(user)
 
 
 def getFollowers(user):
