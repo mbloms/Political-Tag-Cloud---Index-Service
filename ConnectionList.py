@@ -4,7 +4,7 @@ from twython import Twython
 class ConnectionList:
 	"List of (Twython) objects that rotates every time a 'connection' is extracted."
 	def __init__(self,arr = [], filepath = ""):
-		if filepath != "":
+		if filepath != "" || arr == []:
 			arr = readFile(filepath)
 		#The array with all objects
 		self.arr = arr
