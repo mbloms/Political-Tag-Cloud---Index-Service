@@ -16,16 +16,18 @@ def main():
     
     db = Database.Database()
 
-    a = ["AndreasBrommund"]
-
-    getUsersFollowers(a,db)    
+    getUsersFollowers(f,db)    
   
     db.close()
 
 def getUsersFollowers(users,db):
     for u in users:
-        getFollowers(u,db)
-
+        try:
+            db.cursor().execute("INSERT INTO account_of_interest(name) VALUES (%s)",(u,))
+            db.commit()
+        except:
+            pass 
+        #getFollowers(u,db)
 
 def getFollowers(user,db):
     conn = cl.ConnectionList(filepath="config/access.conf") 
@@ -41,10 +43,10 @@ def getFollowers(user,db):
             
             for followerId in response['ids']:
                 try:
-                    db.cursor().execute("INSERT INTO usr VALUES (%s)",(followerId,))
+                    db.cursor().execute("INSERT INTO usr(id) VALUES (%s)",(followerId,))
                     db.commit()
                 except:
-                    print("dup")
+                    pass   
                 cursor = response['next_cursor']
 
 
