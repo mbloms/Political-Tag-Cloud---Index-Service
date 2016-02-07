@@ -10,5 +10,5 @@ class DatabaseConfig:
 	def readConf(self,path,name):
 		f = open(path,"r") 
 		databases = json.load(f)
-		database = databases["databases"][name]
+		database = databases[name]
 		return database
