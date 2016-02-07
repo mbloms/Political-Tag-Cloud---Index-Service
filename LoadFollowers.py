@@ -1,13 +1,12 @@
-# Using Twithon, install with sudo pip3 install twython
 from twython import Twython,TwythonRateLimitError
-import json
 import time
 import ConnectionList as cl
+import Database
 
 def main():
     
     f = ["socialdemokrat",
-         "vansterpartiet",
+        "vansterpartiet",
          "miljopartiet",
          "sdriks",
          "nya_moderaterna",
@@ -15,34 +14,42 @@ def main():
          "kdriks",
          "Centerpartiet"]
     
-    get_users_followers(f)    
+    db = Database.Database()
 
+    getUsersFollowers(f,db)    
+  
+    db.close()
 
-def get_users_followers(users):
+def getUsersFollowers(users,db):
     for u in users:
-        get_followers(u)
+        getFollowers(u,db)
 
 
-def get_followers(user):
-    conn = cl.ConnectionList([],"config/access.conf") 
+def getFollowers(user,db):
+    conn = cl.ConnectionList(filepath="config/access.conf") 
 
     cursor = -1 #default cursor
         
     while cursor != 0:
         
-        current_cursor = cursor
+        currentCursor = cursor
 
         try:
             response = conn.connection().get_followers_ids(screen_name = str(user),cursor = cursor)
-
-            for follower_id in response['ids']:
-                print(follower_id)
+            
+            for followerId in response['ids']:
+                try:
+                    db.cursor().execute("INSERT INTO usr VALUES (%s)",(followerId,))
+                    db.commit()
+                except:
+                    print("dup")
+                    
                 cursor = response['next_cursor']
 
 
         except TwythonRateLimitError:
             time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min
-            cursor = current_cursor
+            cursor = currentCursor
 
 
     
