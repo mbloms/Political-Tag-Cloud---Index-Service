@@ -1,7 +1,7 @@
 # Using Twithon, install with sudo pip3 install twython
 from twython import Twython,TwythonRateLimitError
 import time
-import ConnectionList as cl
+import ConnectionList as CL
 import TwitterUsers as TU
 import json
 
@@ -18,7 +18,7 @@ def getUsersFollowers():
 
 
 def getFollowers(user):
-    conn = cl.ConnectionList(filepath="config/access.conf") 
+    conn = CL.ConnectionList(filepath="config/access.conf") 
 
     cursor = -1 #default cursor
         
