@@ -1,19 +1,19 @@
 from twython import Twython,TwythonRateLimitError
 import time
-import ConnectionList as cl
+import ConnectionList as CL
 import Database
 
 def main():
     
     f = ["socialdemokrat",
-        "vansterpartiet",
+         "vansterpartiet",
          "miljopartiet",
          "sdriks",
          "nya_moderaterna",
          "liberalerna",
          "kdriks",
          "Centerpartiet"]
-    
+   
     db = Database.Database()
 
     getUsersFollowers(f,db)    
@@ -23,37 +23,36 @@ def main():
 def getUsersFollowers(users,db):
     for u in users:
         try:
-            db.cursor().execute("INSERT INTO account_of_interest(name) VALUES (%s)",(u,))
-            db.commit()
+            db.cursor.execute("INSERT INTO grp(name) VALUES (%s)",(u,))
         except:
             pass 
-        #getFollowers(u,db)
+        finally:
+            db.commit()
+        getFollowers(u,db)
 
 def getFollowers(user,db):
-    conn = cl.ConnectionList(filepath="config/access.conf") 
+    conn = CL.ConnectionList(filepath="config/access.conf") 
 
     cursor = -1 #default cursor
         
     while cursor != 0:
         
-        currentCursor = cursor
-
         try:
             response = conn.connection().get_followers_ids(screen_name = str(user),cursor = cursor)
             
             for followerId in response['ids']:
                 try:
-                    db.cursor().execute("INSERT INTO usr(id) VALUES (%s)",(followerId,))
-                    db.commit()
+                    db.cursor.execute("INSERT INTO usr(userid) VALUES (%s)",(followerId,))
                 except:
-                    pass   
+                    pass
+                finally:
+                    db.commit()
                 cursor = response['next_cursor']
-
-
         except TwythonRateLimitError:
-            time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min
-            cursor = currentCursor
-
-
-    
+            print(":(")
+            time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min 
+            print(":)")
+        except TwythonError as err:
+            print(err)
+            
 main()
