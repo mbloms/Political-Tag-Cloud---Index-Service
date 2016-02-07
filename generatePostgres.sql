@@ -6,3 +6,8 @@ CREATE TABLE grp(
 CREATE TABLE usr(
 	userId BIGINT PRIMARY KEY
 );
+CREATE TABLE userInGroup(
+	groupId INT REFERENCES grp (groupId), 
+	userId 	BIGINT REFERENCES usr (userId),
+	PRIMARY KEY(groupId,userId)
+);
