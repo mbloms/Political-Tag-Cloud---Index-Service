@@ -14,34 +14,35 @@ def main():
          "kdriks",
          "Centerpartiet"]
     
-    get_users_followers(f)    
+
+    getUsersFollowers(a)    
 
 
-def get_users_followers(users):
+def getUsersFollowers(users):
     for u in users:
-        get_followers(u)
+        getFollowers(u)
 
 
-def get_followers(user):
+def getFollowers(user):
     conn = cl.ConnectionList(filepath="config/access.conf") 
 
     cursor = -1 #default cursor
         
     while cursor != 0:
         
-        current_cursor = cursor
+        currentCursor = cursor
 
         try:
             response = conn.connection().get_followers_ids(screen_name = str(user),cursor = cursor)
 
-            for follower_id in response['ids']:
-                print(follower_id)
+            for followerId in response['ids']:
+                print(followerId)
                 cursor = response['next_cursor']
 
 
         except TwythonRateLimitError:
             time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min
-            cursor = current_cursor
+            cursor = currentCursor
 
 
     
