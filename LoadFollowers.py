@@ -1,41 +1,35 @@
 from twython import Twython,TwythonRateLimitError,TwythonError
 import time
 import ConnectionList as CL
+import TwitterUsers as TU
 import Database
 import datetime
-
+import json
+ 
 def main():
-    
-    f = ["socialdemokrat",
-         "vansterpartiet",
-         "miljopartiet",
-         "sdriks",
-         "nya_moderaterna",
-         "liberalerna",
-         "kdriks",
-         "Centerpartiet"]
-    
-    db = Database.Database()
 
-    getUsersFollowers(f,db)    
-  
+    db = Database.Database()
+ 
+    getUsersFollowers(db)    
+
     db.close()
 
-def getUsersFollowers(users,db):
-    for u in users:
-        try:
-            db.cursor.execute("INSERT INTO grp(name) VALUES (%s)",(u,))
-        except:
-            pass 
-        finally:
-            db.commit()
+def getUsersFollowers(db):
+    users = TU.TwitterUsers()
+    
+    for group in users.getGroups():
+        #group[0] now contains name and [1] list of users
+        for user in group[1]['users']:
+            try:
+                db.cursor.execute("INSERT INTO grp(groupid,name) VALUES (%s,%s)",(user,group[0],))
+            except:
+                pass 
+            finally:
+                db.commit()
 
-        db.cursor.execute("SELECT groupid FROM grp WHERE name=(%s) LIMIT 1",(u,))
-        groupId = db.cursor.fetchone()[0]
-        
-        getFollowers(u,db,groupId)
+            getFollowers(user,db)
 
-def getFollowers(user,db,groupId):
+def getFollowers(groupId,db):
     conn = CL.ConnectionList(filepath="config/access.conf") 
 
     cursor = -1 #default cursor
@@ -43,7 +37,7 @@ def getFollowers(user,db,groupId):
     while cursor != 0: #No more pages
         
         try:
-            response = conn.connection().get_followers_ids(screen_name = str(user),cursor = cursor)
+            response = conn.connection().get_followers_ids(user_id = groupId,cursor = cursor)
             
             for followerId in response['ids']:
                 try:
