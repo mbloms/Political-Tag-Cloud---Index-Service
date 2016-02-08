@@ -26,8 +26,13 @@ def readFile(filepath):
 	line = txt.readline()
 	#While there is more
 	while line != "":
-		#Make Twython objects of two lines, ignoring the first of three. If the lines in the file is not devisable by 3, something will go bad.
-		lst.append(twythonHelper.newTwython(txt.readline().strip(), txt.readline().strip()))
-		line = txt.readline()
+                #Make Twython objects of two lines, ignoring the first of three. 
+                    #If the lines in the file is not devisable by 3, something will go bad.
+                appKey = txt.readline().strip()
+                appSecret = txt.readline().strip()
+                newAccess = twythonHelper.newTwython(appKey,appSecret)
+                if newAccess != False:
+                    lst.append(newAccess)
+                line = txt.readline() # to remove the name
 	txt.close()
 	return lst
