@@ -1,43 +1,67 @@
-# Using Twithon, install with sudo pip3 install twython
-from twython import Twython,TwythonRateLimitError
+from twython import Twython,TwythonRateLimitError,TwythonError
 import time
 import ConnectionList as CL
 import TwitterUsers as TU
+import Database
+import datetime
 import json
-
+ 
 def main():
-    getUsersFollowers()    
 
+    db = Database.Database()
+ 
+    getUsersFollowers(db)    
 
-def getUsersFollowers():
+    db.close()
+
+def getUsersFollowers(db):
     users = TU.TwitterUsers()
+    
     for group in users.getGroups():
-        # group[0] now contains name and [1] list of users
+        #group[0] now contains name and [1] list of users
         for user in group[1]['users']:
-            getFollowers(user)
+            try:
+                db.cursor.execute("INSERT INTO grp(groupid,name) VALUES (%s,%s)",(user,group[0],))
+            except:
+                pass 
+            finally:
+                db.commit()
 
+            getFollowers(user,db)
 
-def getFollowers(user):
+def getFollowers(groupId,db):
     conn = CL.ConnectionList(filepath="config/access.conf") 
 
     cursor = -1 #default cursor
         
-    while cursor != 0:
+    while cursor != 0: #No more pages
         
-        currentCursor = cursor
-
         try:
-            response = conn.connection().get_followers_ids(screen_name = str(user),cursor = cursor)
-
+            response = conn.connection().get_followers_ids(user_id = groupId,cursor = cursor)
+            
             for followerId in response['ids']:
-                print(followerId)
-                cursor = response['next_cursor']
-
-
-        except TwythonRateLimitError:
-            time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min
-            cursor = currentCursor
-
-
-    
+                try:
+                    db.cursor.execute("INSERT INTO usr(userid) VALUES (%s)",(followerId,))
+                except: 
+                    pass
+                finally:
+                    db.commit()
+                    
+                try:
+                    db.cursor.execute("INSERT INTO userInGroup(groupid,userId) VALUES (%s,%s)",(groupId,followerId,))
+                except:
+                    pass
+                finally:
+                    db.commit()
+                    
+                cursor = response['next_cursor'] 
+        except TwythonRateLimitError as err:
+            print(":(")
+            print(err)
+            print(datetime.datetime.now())
+            time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min 
+            print(":)")  
+        except TwythonError as err: #Handel timeouts
+            print("Timeout?")
+            print(err)
 main()
