@@ -1,7 +1,8 @@
-from twython import Twython,TwythonRateLimitError
+from twython import Twython,TwythonRateLimitError,TwythonError
 import time
 import ConnectionList as CL
 import Database
+import datetime
 
 def main():
     
@@ -13,7 +14,6 @@ def main():
          "liberalerna",
          "kdriks",
          "Centerpartiet"]
-   
     
     db = Database.Database()
 
@@ -40,7 +40,7 @@ def getFollowers(user,db,groupId):
 
     cursor = -1 #default cursor
         
-    while cursor != 0:
+    while cursor != 0: #No more pages
         
         try:
             response = conn.connection().get_followers_ids(screen_name = str(user),cursor = cursor)
@@ -48,7 +48,7 @@ def getFollowers(user,db,groupId):
             for followerId in response['ids']:
                 try:
                     db.cursor.execute("INSERT INTO usr(userid) VALUES (%s)",(followerId,))
-                except:
+                except: 
                     pass
                 finally:
                     db.commit()
@@ -59,9 +59,15 @@ def getFollowers(user,db,groupId):
                     pass
                 finally:
                     db.commit()
-                cursor = response['next_cursor']
-        except TwythonRateLimitError:
+                    
+                cursor = response['next_cursor'] 
+        except TwythonRateLimitError as err:
             print(":(")
+            print(err)
+            print(datetime.datetime.now())
             time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min 
-            print(":)")            
+            print(":)")  
+        except TwythonError as err: #Handel timeouts
+            print("Timeout?")
+            print(err)
 main()
