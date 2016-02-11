@@ -6,9 +6,26 @@ import Database
 import datetime
 import json
  
-#def main():
-#
-#    getTweets()
+class Tweet:
+    def __init__(self,id,userId,timestamp,content,hashtags):
+        self.id = id
+        self.userId = userId
+        self.timestamp = timestamp
+        self.content = content
+        self.hashtags = hashtags
+
+def jsonToTweet(userId,tweet):
+    hashtags = []
+    for hashtag in (tweet['entities']['hashtags']):
+        hashtags.append(hashtag['text'])
+
+    id = tweet['id']
+    timestamp = tweet['created_at']
+    content = tweet['text']
+
+    return Tweet(id,userId,timestamp,content,hashtags)
+
+
 
 def main():
     conn = CL.ConnectionList(filepath="config/access.conf") 
@@ -36,8 +53,10 @@ def main():
         print(err)
 
     for tweet in response:
+        hashtags = []
         for hashtag in (tweet['entities']['hashtags']):
-            print (hashtag['text'])
-        
+            hashtags.append(hashtag['text'])
+        print(tweet['id_str'] + ', ' + str(hashtags) + ', ' + tweet['text'])
+
         print('\n---\n')
 main()
