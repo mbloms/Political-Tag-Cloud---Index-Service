@@ -1,6 +1,6 @@
 CREATE TABLE grp(
 	groupId BIGINT PRIMARY KEY,
-	name VARCHAR(40)
+	name VARCHAR(50)
 );
 CREATE TABLE usr(
 	userId BIGINT PRIMARY KEY
@@ -13,8 +13,8 @@ CREATE TABLE userInGroup(
 CREATE TABLE tweet(
 	tweetId BIGINT PRIMARY KEY, 
 	userId 	BIGINT REFERENCES usr (userId),
-	timestamp VARCHAR(30),
-	content VARCHAR(140)
+	timestamp VARCHAR(35),
+	content VARCHAR(160)
 );
 CREATE TABLE tweetTag(
 	tweetId BIGINT REFERENCES tweet (tweetId),
