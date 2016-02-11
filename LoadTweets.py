@@ -25,9 +25,11 @@ def jsonToTweet(userId,tweet):
 
     return Tweet(id,userId,timestamp,content,hashtags)
 
+def main():
+    userId = 2785262214
+    getTweets(userId)
 
-
-def main(userId):
+def getTweets(userId):
     conn = CL.ConnectionList(filepath="config/access.conf") 
 
     maxId = None
