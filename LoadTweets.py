@@ -15,18 +15,18 @@ class Tweet:
         self.hashtags = hashtags
 
 def main():
+    print("Started at:"+str(datetime.datetime.now()))
     db = Database.Database()
     conn = CL.ConnectionList(filepath="config/access.conf") 
     db.cursor.execute("SELECT usr.userid FROM usr JOIN useringroup ON usr.userid = useringroup.userid JOIN grp ON useringroup.groupid = grp.groupid WHERE name = 'Kristdemokraterna'")
     i = 0
     for userid in db.cursor.fetchall():
         i += 1
-        print(userid[0])
-        print(i)
+        print("User nr:"+str(i))
         start = time.time()
         getTweets(userid[0],db,conn)
         end = time.time()
-        print("Time 1:"+str(end-start))
+        print("Duration:"+str(end-start))
         print("---")
 
 def jsonToTweet(userId,tweet):
@@ -78,7 +78,7 @@ def getTweets(userId,db,conn):
     
                         
         except TwythonAuthError:
-            print("nop")
+            print("Private account")
             #Add to blacklist
             break
             
@@ -89,6 +89,6 @@ def getTweets(userId,db,conn):
             time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min 
             print(":)")  
         except TwythonError as err: #Handel timeouts
-            print("Timeout?")
+            print("Error:")
             print(err)
 main()
