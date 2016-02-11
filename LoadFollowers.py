@@ -8,13 +8,14 @@ import json
  
 def main():
 
+    conn = CL.ConnectionList(filepath="config/access.conf") 
     db = Database.Database()
  
     getUsersFollowers(db)    
 
     db.close()
 
-def getUsersFollowers(db):
+def getUsersFollowers(db,conn):
     users = TU.TwitterUsers()
     
     for group in users.getGroups():
@@ -27,10 +28,9 @@ def getUsersFollowers(db):
             finally:
                 db.commit()
 
-            getFollowers(user,db)
+            getFollowers(user,db,conn)
 
-def getFollowers(groupId,db):
-    conn = CL.ConnectionList(filepath="config/access.conf") 
+def getFollowers(groupId,db,conn):
 
     cursor = -1 #default cursor
         
