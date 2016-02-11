@@ -16,14 +16,18 @@ class Tweet:
 
 def main():
     db = Database.Database()
+    conn = CL.ConnectionList(filepath="config/access.conf") 
     db.cursor.execute("SELECT usr.userid FROM usr JOIN useringroup ON usr.userid = useringroup.userid JOIN grp ON useringroup.groupid = grp.groupid WHERE name = 'Kristdemokraterna'")
     i = 0
     for userid in db.cursor.fetchall():
         i += 1
         print(userid[0])
         print(i)
-        getTweets(userid[0],db)
-       
+        start = time.time()
+        getTweets(userid[0],db,conn)
+        end = time.time()
+        print("Time 1:"+str(end-start))
+        print("---")
 
 def jsonToTweet(userId,tweet):
     hashtags = []
@@ -36,8 +40,7 @@ def jsonToTweet(userId,tweet):
 
     return Tweet(id,userId,timestamp,content,hashtags)
 
-def getTweets(userId,db):
-    conn = CL.ConnectionList(filepath="config/access.conf") 
+def getTweets(userId,db,conn):
 
     maxId = None
     tweets = []
@@ -46,20 +49,21 @@ def getTweets(userId,db):
 
         
         try:
-            response = conn.connection().get_user_timeline(user_id = userId, include_rts = False, trim_user = True, max_id = maxId)
-         
+            response = conn.connection().get_user_timeline(user_id = userId,count=200,include_rts = False, trim_user = True, max_id = maxId)
+
             if response == []:
                 break
 
             for jsontw in response:
                 data = jsonToTweet(userId,jsontw)
-                
+
                 try:
                     db.cursor.execute("INSERT INTO tweet(tweetId,userId,timestamp,content) VALUES (%s,%s,%s,%s)",(data.id,data.userId,data.timestamp,data.content,))
                 except: 
                     pass
                 finally:
                     db.commit()
+
 
                 try:
                     for tag in data.hashtags:
