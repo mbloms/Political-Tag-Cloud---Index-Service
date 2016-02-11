@@ -2,7 +2,7 @@ import json
 class TwitterUsers:
 	"List of TwitterUsers"
 	def __init__(self):
-		self.configPath = "config/accounts.config.json"
+		self.configPath = "config/accounts.json"
 		self.dict = self.prepareData()
 		
 	def prepareData(self):
