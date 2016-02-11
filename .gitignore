@@ -142,4 +142,12 @@ sftp-config.json
 
 # Linux trash folder which might appear on any partition or disk
 .Trash-*
+
+#IDEA
 .idea
+
+#Config folder is now ignored
+config/
+
+
+
