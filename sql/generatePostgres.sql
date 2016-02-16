@@ -13,11 +13,33 @@ CREATE TABLE userInGroup(
 CREATE TABLE tweet(
 	tweetId BIGINT PRIMARY KEY, 
 	userId 	BIGINT REFERENCES usr (userId),
-	timestamp VARCHAR(35),
-	content VARCHAR(160)
+	timestamp TIMESTAMP,
+	content VARCHAR(160),
+	location VARCHAR(30)
+);
+CREATE TABLE retweet(
+	tweetId BIGINT REFERENCES tweet (tweetId) PRIMARY KEY,
+	creatorId BIGINT,
+	originalTweetId BIGINT
+);
+CREATE TABLE mention(
+	mentionId SERIAL PRIMARY KEY,
+	userId BIGINT UNIQUE
+);
+CREATE TABLE tweetMention(
+	tweetId BIGINT REFERENCES tweet (tweetId),
+    mentionId INT REFERENCES mention (mentionId),
+    PRIMARY KEY(tweetId,mentionId)
+);
+CREATE TABLE tag(
+	tagId SERIAL PRIMARY KEY,
+	tag   VARCHAR(40) UNIQUE
 );
 CREATE TABLE tweetTag(
 	tweetId BIGINT REFERENCES tweet (tweetId),
-	tag VARCHAR(30),
-	PRIMARY KEY(tweetId,tag)
+	tagId INT REFERENCES tag (tagId),
+	PRIMARY KEY(tweetId,tagId)
 );
+
+
+SELECT to_timestamp('Mon Mar 26 19:25:48 +0000 2007','Dy Mon DD HH24:MI:SS xxxx YYYY') FROM usr LIMIT 1
