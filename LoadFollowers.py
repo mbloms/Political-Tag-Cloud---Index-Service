@@ -11,7 +11,7 @@ def main():
     conn = CL.ConnectionList(filepath="config/access.conf") 
     db = Database.Database()
  
-    getUsersFollowers(db)    
+    getUsersFollowers(db,conn)
 
     db.close()
 
