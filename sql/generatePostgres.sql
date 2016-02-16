@@ -42,4 +42,3 @@ CREATE TABLE tweetTag(
 );
 
 
-SELECT to_timestamp('Mon Mar 26 19:25:48 +0000 2007','Dy Mon DD HH24:MI:SS xxxx YYYY') FROM usr LIMIT 1
