@@ -22,7 +22,6 @@ def jsonToTweet(userId,tweet):
     id = tweet['id']
     timestamp = tweet['created_at']
     content = tweet['text']
-    print(content+"\n"+str(id))
 
     return Tweet(id,userId,timestamp,content,hashtags)
 
