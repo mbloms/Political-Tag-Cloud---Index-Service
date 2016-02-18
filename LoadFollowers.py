@@ -19,10 +19,23 @@ def getUsersFollowers(db,conn):
     users = TU.TwitterUsers()
     
     for group in users.getGroups():
-        #group[0] now contains name and [1] list of users
+        # group[0] now contains name and [1] list of users
+        # First, add the group to the database
+        try:
+            db.cursor.execute("INSERT INTO grp(name) VALUES (%s)",(group[0],))
+        except:
+            pass
+        finally:
+            db.commit()
+        # Fetch groupId from DB
+        db.cursor.execute("SELECT groupId FROM grp WHERE name = %s", (group[0],))
+        groupId = db.cursor.fetchone()[0]
+
+        # Now, for each user, add it to the database along with the group relation
         for user in group[1]['users']:
             try:
-                db.cursor.execute("INSERT INTO grp(groupid,name) VALUES (%s,%s)",(user,group[0],))
+                db.cursor.execute("INSERT INTO usr(userId) VALUES (%s)",(user,))
+                db.cursor.execute("INSERT INTO userInGroup(groupId, userId) VALUES (%s, %s)",(groupId, user,))
             except:
                 pass 
             finally:
