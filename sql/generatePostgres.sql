@@ -28,7 +28,7 @@ CREATE TABLE retweet(
 CREATE TABLE tweetMention(
 	tweetId BIGINT REFERENCES tweet (tweetId),
     userId BIGINT,
-    PRIMARY KEY(tweetId,mentionId)
+    PRIMARY KEY(tweetId,userId)
 );
 CREATE TABLE tag(
 	tagId SERIAL PRIMARY KEY,
