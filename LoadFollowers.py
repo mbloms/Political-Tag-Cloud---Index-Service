@@ -29,7 +29,7 @@ def getUsersFollowers(db,conn):
 
             getFollowers(user,db,conn)
 
-"""Get all followres from a specifik twitter user and and the folloer to the database"""
+"""Get all followers from a specifik twitter user and and the follower to the database"""
 def getFollowers(followedId,db,conn):
 
     cursor = -1 #default cursor
