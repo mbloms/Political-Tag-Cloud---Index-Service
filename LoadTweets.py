@@ -25,8 +25,17 @@ def jsonToTweet(userId,tweet):
 
     return Tweet(id,userId,timestamp,content,hashtags)
 
-def getTweets(userId,db,conn,sinceId=None):
+def getLastTweetId(userid,db):
+    """Returns the latest twitter id,if the user does not exists or have not tweeted we return None"""
+    db.cursor.execute("SELECT coalesce(tweetid,-1)AS tweetid FROM usr" +
+                                         " NATURAL LEFT JOIN tweet WHERE userid = %s ORDER BY TIMESTAMP DESC LIMIT 1",(userid,))
+    id = db.cursor.fetchone()
+    if id == None:
+        return None
+    return id[0] if id[0] != -1 else None
 
+
+def getTweets(userId,db,conn,sinceId=None):
 
     maxId = None
 
