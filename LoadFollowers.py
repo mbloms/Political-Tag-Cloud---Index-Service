@@ -34,9 +34,15 @@ def getUsersFollowers(db,conn):
         for user in group[1]['users']:
             try:
                 db.cursor.execute("INSERT INTO usr(userId) VALUES (%s)",(user,))
-                db.cursor.execute("INSERT INTO userInGroup(groupId, userId) VALUES (%s, %s)",(groupId, user,))
             except:
                 pass 
+            finally:
+                db.commit()
+            # Now store data that this user follows the group
+            try:
+                db.cursor.execute("INSERT INTO userInGroup(groupId, userId) VALUES (%s, %s)",(groupId, user,))
+            except:
+                pass
             finally:
                 db.commit()
 
