@@ -1,11 +1,10 @@
-from twython import Twython,TwythonRateLimitError,TwythonError
+from twython import TwythonRateLimitError,TwythonError
 import time
 import ConnectionList as CL
 import TwitterUsers as TU
 import Database
 import datetime
-import json
- 
+
 def main():
 
     conn = CL.ConnectionList(filepath="config/access.conf") 
@@ -43,14 +42,15 @@ def getUsersFollowers(db,conn):
 
             getFollowers(user,db,conn)
 
-def getFollowers(groupId,db,conn):
+"""Get all followers from a specifik twitter user and and the follower to the database"""
+def getFollowers(followedId,db,conn):
 
     cursor = -1 #default cursor
         
     while cursor != 0: #No more pages
         
         try:
-            response = conn.connection().get_followers_ids(user_id = groupId,cursor = cursor)
+            response = conn.connection().get_followers_ids(user_id = followedId,cursor = cursor)
             
             for followerId in response['ids']:
                 try:
@@ -61,7 +61,7 @@ def getFollowers(groupId,db,conn):
                     db.commit()
                     
                 try:
-                    db.cursor.execute("INSERT INTO userInGroup(groupid,userId) VALUES (%s,%s)",(groupId,followerId,))
+                    db.cursor.execute("INSERT INTO following(followedId,followerId) VALUES (%s,%s)",(followedId,followerId))
                 except:
                     pass
                 finally:
