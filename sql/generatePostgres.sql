@@ -17,18 +17,17 @@ CREATE TABLE tweet(
 	content VARCHAR(160),
 	location VARCHAR(30)
 );
+/* creatorId and originalTweetId is not foreign keys of usr since we want to be able to handle retweets from users that are not in our database*/
 CREATE TABLE retweet(
 	tweetId BIGINT REFERENCES tweet (tweetId) PRIMARY KEY,
 	creatorId BIGINT,
 	originalTweetId BIGINT
 );
-CREATE TABLE mention(
-	mentionId SERIAL PRIMARY KEY,
-	userId BIGINT UNIQUE
-);
+
+/* userId is not a foreign key so that we can handle mentions with users that is not in our database */
 CREATE TABLE tweetMention(
 	tweetId BIGINT REFERENCES tweet (tweetId),
-    mentionId INT REFERENCES mention (mentionId),
+    userId BIGINT,
     PRIMARY KEY(tweetId,mentionId)
 );
 CREATE TABLE tag(
@@ -39,6 +38,25 @@ CREATE TABLE tweetTag(
 	tweetId BIGINT REFERENCES tweet (tweetId),
 	tagId INT REFERENCES tag (tagId),
 	PRIMARY KEY(tweetId,tagId)
+);
+CREATE TABLE following(
+	followedId BIGINT REFERENCES usr(userId),
+	followerId BIGINT REFERENCES usr(userId),
+	PRIMARY KEY(followedId, followerId)
+);
+
+CREATE TABLE unfollow(
+	unfollowId SERIAL PRIMARY KEY,
+	followedId BIGINT REFERENCES usr(userId),
+	followerId BIGINT REFERENCES usr(userId),
+	timestamp TIMESTAMP
+);
+
+CREATE TABLE startfollow(
+	unfollowId SERIAL PRIMARY KEY,
+	followedId BIGINT REFERENCES usr(userId),
+	followerId BIGINT REFERENCES usr(userId),
+	timestamp TIMESTAMP
 );
 
 
