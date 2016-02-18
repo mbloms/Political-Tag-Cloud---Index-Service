@@ -14,21 +14,6 @@ class Tweet:
         self.content = content
         self.hashtags = hashtags
 
-def main():
-    print("Started at:"+str(datetime.datetime.now()))
-    db = Database.Database()
-    conn = CL.ConnectionList(filepath="config/access.conf") 
-    db.cursor.execute("SELECT usr.userid FROM usr JOIN useringroup ON usr.userid = useringroup.userid JOIN grp ON useringroup.groupid = grp.groupid WHERE name = 'Kristdemokraterna'")
-    i = 0
-    for userid in db.cursor.fetchall():
-        i += 1
-        print("User nr:"+str(i))
-        start = time.time()
-        getTweets(userid[0],db,conn)
-        end = time.time()
-        print("Duration:"+str(end-start))
-        print("---")
-
 def jsonToTweet(userId,tweet):
     hashtags = []
     for hashtag in (tweet['entities']['hashtags']):
@@ -40,16 +25,19 @@ def jsonToTweet(userId,tweet):
 
     return Tweet(id,userId,timestamp,content,hashtags)
 
-def getTweets(userId,db,conn):
+def getTweets(userId,db,conn,sinceId=None):
+
 
     maxId = None
+
+
     tweets = []
 
     while True:
 
         
         try:
-            response = conn.connection().get_user_timeline(user_id = userId,count=200,include_rts = False, trim_user = True, max_id = maxId)
+            response = conn.connection().get_user_timeline(user_id = userId,count=200,include_rts = False, trim_user = True, max_id = maxId, since_id = sinceId)
 
             if response == []:
                 break
@@ -91,4 +79,3 @@ def getTweets(userId,db,conn):
         except TwythonError as err: #Handel timeouts
             print("Error:")
             print(err)
-main()
