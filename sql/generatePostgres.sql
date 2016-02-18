@@ -39,5 +39,24 @@ CREATE TABLE tweetTag(
 	tagId INT REFERENCES tag (tagId),
 	PRIMARY KEY(tweetId,tagId)
 );
+CREATE TABLE following(
+	followedId BIGINT REFERENCES usr(userId),
+	followerId BIGINT REFERENCES usr(userId),
+	PRIMARY KEY(followedId, followerId)
+);
+
+CREATE TABLE unfollow(
+	unfollowId SERIAL PRIMARY KEY,
+	followedId BIGINT REFERENCES usr(userId),
+	followerId BIGINT REFERENCES usr(userId),
+	timestamp TIMESTAMP
+);
+
+CREATE TABLE startfollow(
+	unfollowId SERIAL PRIMARY KEY,
+	followedId BIGINT REFERENCES usr(userId),
+	followerId BIGINT REFERENCES usr(userId),
+	timestamp TIMESTAMP
+);
 
 
