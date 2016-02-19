@@ -84,20 +84,20 @@ def getFollowers(followedId,db,conn):
             print("Timeout?")
             print(err)
 
-def calculateFollowingDiffAndClean(tempTableName):
+def calculateFollowingDiffAndClean(db, tempTableName):
     """
         A method that caluclates which users that have stopped following and started following 
         each other and puts this information in corresonding relations as well as deleting the 
         temporary table after these calculations are done
     """
     # Caluclate new followers
-    db.cursor.execute("(SELECT followedId, followerId FROM " + tempTableName + ") DIVIDE (SELECT followedId, followerId FROM following)")
+    db.cursor.execute("(SELECT followedId, followerId FROM " + tempTableName + ") EXCEPT (SELECT followedId, followerId FROM following)")
     for follows in db.cursor.fetchall():
         db.cursor.execute("INSERT INTO startfollow(followedId, followerId) VALUES (%s, %s)", (unfollows[0], unfollows[1]))
     db.commit()
 
     # Caluclate unfollows
-    db.cursor.execute("(SELECT followedId, followerId FROM following) DIVIDE (SELECT followedId, followerId FROM " + tempTableName + ")")
+    db.cursor.execute("(SELECT followedId, followerId FROM following) EXCEPT (SELECT followedId, followerId FROM " + tempTableName + ")")
     for unfollows in db.cursor.fetchall():
         db.cursor.execute("INSERT INTO unfollow(followedId, followerId) VALUES (%s, %s)", (unfollows[0], unfollows[1]))
     db.commit()
