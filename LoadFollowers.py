@@ -9,12 +9,31 @@ def main():
 
     conn = CL.ConnectionList(filepath="config/access.conf") 
     db = Database.Database()
- 
-    getUsersFollowers(db,conn)
+    tempTableName = "followingTemp"
 
+    #Need the weird syntax
+    #Link: http://stackoverflow.com/questions/9354392/psycopg2-cursor-execute-with-sql-query-parameter-causes-syntax-error
+    try:
+        db.cursor.execute("CREATE TABLE %s(followedId BIGINT REFERENCES usr(userId),followerId BIGINT REFERENCES usr(userId),PRIMARY KEY(followedId, followerId))"  % (tempTableName))
+    except:
+        pass
+    finally:
+        db.commit()
+
+    getUsersFollowers(db,conn,tempTableName)
     db.close()
 
-def getUsersFollowers(db,conn):
+def getUsersFollowers(db,conn,tempTableName):
+
+
+    #Create the new tempdatabse
+    try:
+        db.cursor.execute("CREATE TABLE a",(tempTableName))
+    except:
+        pass
+    finally:
+        db.commit()
+
     users = TU.TwitterUsers()
     
     for group in users.getGroups():
@@ -46,10 +65,10 @@ def getUsersFollowers(db,conn):
             finally:
                 db.commit()
 
-            getFollowers(user,db,conn)
+            getFollowers(user,db,conn,tempTableName)
 
 """Get all followers from a specifik twitter user and and the follower to the database"""
-def getFollowers(followedId,db,conn):
+def getFollowers(followedId,db,conn,tempTableName):
 
     cursor = -1 #default cursor
         
@@ -65,14 +84,16 @@ def getFollowers(followedId,db,conn):
                     pass
                 finally:
                     db.commit()
-                    
+
                 try:
-                    db.cursor.execute("INSERT INTO following(followedId,followerId) VALUES (%s,%s)",(followedId,followerId))
+                    #Need the weird syntax
+                    #Link: http://stackoverflow.com/questions/9354392/psycopg2-cursor-execute-with-sql-query-parameter-causes-syntax-error
+                    db.cursor.execute("INSERT INTO %s(followedId,followerId) VALUES (%s,%s)" % (tempTableName, "%s", "%s"),(followedId,followerId,))
                 except:
                     pass
                 finally:
                     db.commit()
-                    
+
                 cursor = response['next_cursor'] 
         except TwythonRateLimitError as err:
             print(":(")
