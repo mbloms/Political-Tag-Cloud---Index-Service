@@ -83,4 +83,27 @@ def getFollowers(followedId,db,conn):
         except TwythonError as err: #Handel timeouts
             print("Timeout?")
             print(err)
+
+def calculateFollowingDiffAndClean(tempTableName):
+    """
+        A method that caluclates which users that have stopped following and started following 
+        each other and puts this information in corresonding relations as well as deleting the 
+        temporary table after these calculations are done
+    """
+    # Caluclate new followers
+    db.cursor.execute("(SELECT followedId, followerId FROM " + tempTableName + ") DIVIDE (SELECT followedId, followerId FROM following)")
+    for follows in db.cursor.fetchall():
+        db.cursor.execute("INSERT INTO startfollow(followedId, followerId) VALUES (%s, %s)", (unfollows[0], unfollows[1]))
+    db.commit()
+
+    # Caluclate unfollows
+    db.cursor.execute("(SELECT followedId, followerId FROM following) DIVIDE (SELECT followedId, followerId FROM " + tempTableName + ")")
+    for unfollows in db.cursor.fetchall():
+        db.cursor.execute("INSERT INTO unfollow(followedId, followerId) VALUES (%s, %s)", (unfollows[0], unfollows[1]))
+    db.commit()
+    # Delete temporary table by deleting the old one and renaming the temporary one
+    db.cursor.execute("DROP TABLE following")
+    db.commit()
+    db.cursor.execute("ALTER TABLE " + tempTableName + " RENAME TO following")
+    db.commit()
 main()
