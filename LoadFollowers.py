@@ -21,6 +21,9 @@ def main():
         db.commit()
 
     getUsersFollowers(db,conn,tempTableName)
+
+    calculateFollowingDiffAndClean(db,tempTableName)
+
     db.close()
 
 def getUsersFollowers(db,conn,tempTableName):
@@ -114,7 +117,7 @@ def calculateFollowingDiffAndClean(db, tempTableName):
     # Caluclate new followers
     db.cursor.execute("(SELECT followedId, followerId FROM " + tempTableName + ") EXCEPT (SELECT followedId, followerId FROM following)")
     for follows in db.cursor.fetchall():
-        db.cursor.execute("INSERT INTO startfollow(followedId, followerId) VALUES (%s, %s)", (unfollows[0], unfollows[1]))
+        db.cursor.execute("INSERT INTO startfollow(followedId, followerId) VALUES (%s, %s)", (follows[0], follows[1]))
     db.commit()
 
     # Caluclate unfollows
