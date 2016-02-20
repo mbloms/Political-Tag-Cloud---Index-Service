@@ -10,8 +10,9 @@ class LoadFollowers():
         self.conn = CL.ConnectionList(filepath="config/access.conf") 
         self.db = Database.Database()
      
-        getUsersFollowers()
+        self.getUsersFollowers()
 
+    def close(self):
         self.db.close()
 
     def getUsersFollowers(self):

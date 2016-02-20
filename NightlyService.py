@@ -16,5 +16,11 @@ class NightlyService:
 		pass
 
 	def updateFollowers(self):
-		loadFollowers = FL()
+		loadFollowers = LF.LoadFollowers()
 		loadFollowers.getUsersFollowers()
+		loadFollowers.close()
+
+def main():
+	NS = NightlyService()
+	NS.updateFollowers()
+main()
