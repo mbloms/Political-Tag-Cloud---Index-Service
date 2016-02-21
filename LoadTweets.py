@@ -15,7 +15,8 @@ class Tweet:
         self.hashtags = hashtags
 
     def __str__(self):
-        output = "ID: " + str(self.id) + " | userID: " + str(self.userId) + " | timestamp: " + str(self.timestamp) + " | content: " + str(self.content) + " | Hashtags: " + ' '.join(self.hashtags)
+        output = "ID: " + str(self.id) + " | userID: " + str(self.userId) + " | timestamp: " + str(self.timestamp) + \
+                 " | content: " + str(self.content) + " | Hashtags: " + ' '.join(self.hashtags)
         return output
 
 class LoadTweets:
@@ -37,7 +38,8 @@ class LoadTweets:
     def getLastTweetId(self, userid):
         """Returns the latest twitter id,if the user does not exists or have not tweeted we return None"""
         self.db.cursor.execute("SELECT coalesce(tweetid,-1)AS tweetid FROM usr" +
-                                             " NATURAL LEFT JOIN tweet WHERE userid = %s ORDER BY TIMESTAMP DESC LIMIT 1",(userid,))
+                             " NATURAL LEFT JOIN tweet WHERE userid = %s ORDER BY TIMESTAMP DESC LIMIT 1"
+                               ,(userid,))
         id = self.db.cursor.fetchone()
         if id == None:
             return None
@@ -55,7 +57,8 @@ class LoadTweets:
 
             
             try:
-                response = self.conn.connection().get_user_timeline(user_id = userId,count=200,include_rts = False, trim_user = True, max_id = maxId, since_id = sinceId)
+                response = self.conn.connection().get_user_timeline(user_id = userId,
+                                    count=200,include_rts = False, trim_user = True, max_id = maxId, since_id = sinceId)
 
                 if response == []:
                     break
@@ -63,7 +66,8 @@ class LoadTweets:
                 for jsontw in response:
                     data = self.jsonToTweet(userId,jsontw)
                     try:
-                        self.db.cursor.execute("INSERT INTO tweet(tweetId,userId,timestamp,content) VALUES (%s,%s,%s,%s)",(data.id,data.userId,data.timestamp,data.content,))
+                        self.db.cursor.execute("INSERT INTO tweet(tweetId,userId,timestamp,content) VALUES (%s,%s,%s,%s)",
+                                               (data.id,data.userId,data.timestamp,data.content,))
                     except: 
                         pass
                     finally:
@@ -84,7 +88,8 @@ class LoadTweets:
                             pass
 
                         try:
-                            self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",(data.id,db.cursor.fetchone()[0],))
+                            self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",
+                                                   (data.id,self.db.cursor.fetchone()[0],))
                         except:
                             pass
                         finally:
