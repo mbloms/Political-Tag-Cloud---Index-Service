@@ -40,10 +40,10 @@ class LoadTweets:
         return id[0] if id[0] != -1 else None
 
 
-    def getTweets(self,userId,sinceId=None):
+    def getTweets(self,userId):
 
         maxId = None
-
+        sinceId = self.getLastTweetId(userId)
 
         tweets = []
 

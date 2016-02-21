@@ -28,8 +28,6 @@ class NightlyService:
 		users = self.db.cursor.fetchall()
 		for user in users:
 			print("Fetching tweets for user " + user)
-			
-
 
 
 def main():
