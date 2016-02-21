@@ -83,7 +83,8 @@ class LoadTweets:
                             pass
 
                         try:
-                            self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",(data.id,db.cursor.fetchone()[0],))
+                            tagId = db.cursor.fetchone()[0]
+                            self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",(data.id,tagId,))
                         except:
                             pass
                         finally:
