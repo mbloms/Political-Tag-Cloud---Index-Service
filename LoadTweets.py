@@ -57,6 +57,7 @@ class LoadTweets:
         return id[0] if id[0] != -1 else None
 
     def hashtagHelper(self, data):
+        """ Fetch hashtags from data and add the sufficient relations """
         for tag in data.hashtags:
             try:
                 self.db.cursor.execute("INSERT INTO tag(tag) VALUES (%s)",(tag,))
@@ -79,6 +80,7 @@ class LoadTweets:
                 self.db.commit()
 
     def mentionHelper(self, data):
+        """ Fetch mentions from data and add the sufficient relations """
         for mention in data.mentions:
             try:
                 self.db.cursor.execute("INSERT INTO tweetMention(tweetId,userId) VALUES (%s,%s)",(data.id,mention,))
@@ -88,6 +90,7 @@ class LoadTweets:
                 self.db.commit()
 
     def retweetHelper(self, data):
+        """ Fetch retweet info from data and add the sufficient relations """
         retweet = data.retweet
         if retweet != None:
             print("This is a retweeted tweet")
