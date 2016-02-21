@@ -53,7 +53,7 @@ def getTweets(userId,db,conn,sinceId=None):
 
             for jsontw in response:
                 data = jsonToTweet(userId,jsontw)
-
+                print(data)
                 try:
                     db.cursor.execute("INSERT INTO tweet(tweetId,userId,timestamp,content) VALUES (%s,%s,%s,%s)",(data.id,data.userId,data.timestamp,data.content,))
                 except: 

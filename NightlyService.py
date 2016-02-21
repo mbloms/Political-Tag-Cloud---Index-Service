@@ -2,6 +2,7 @@ from twython import TwythonRateLimitError,TwythonError
 import time
 import ConnectionList as CL
 import LoadFollowers as LF
+import LoadTweets as LT
 import Database
 import datetime
 
@@ -13,12 +14,23 @@ class NightlyService:
 		• Update tweets for already existing users
 	"""
 	def __init__(self):
-		pass
+		self.conn = CL.ConnectionList(filepath="config/access.conf") 
+        self.db = Database.Database()
+        self.loadFollowers = LF.LoadFollowers()
+        self.loadTweets = LT.LoadTweets()
 
 	def updateFollowers(self):
-		loadFollowers = LF.LoadFollowers()
-		loadFollowers.getUsersFollowers()
-		loadFollowers.close()
+		self.loadFollowers.getUsersFollowers()
+		self.loadFollowers.close()
+
+	def loadTweets(self):
+		self.db.cursor.execute("SELECT userId FROM usr")
+		users = self.db.cursor.fetchall()
+		for user in users:
+			print("Fetching tweets for user " + user)
+			
+
+
 
 def main():
 	NS = NightlyService()
