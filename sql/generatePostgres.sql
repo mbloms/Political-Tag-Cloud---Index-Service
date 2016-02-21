@@ -53,7 +53,7 @@ CREATE TABLE unfollow(
 );
 
 CREATE TABLE startfollow(
-	unfollowId SERIAL PRIMARY KEY,
+	followId SERIAL PRIMARY KEY,
 	followedId BIGINT REFERENCES usr(userId),
 	followerId BIGINT REFERENCES usr(userId),
 	timestamp TIMESTAMP DEFAULT now()
