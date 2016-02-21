@@ -6,6 +6,7 @@ import LoadTweets as LT
 import Database
 import datetime
 import time
+import sys
 
 class NightlyService:
 	""" 
@@ -39,7 +40,20 @@ class NightlyService:
 			print("---")
 
 
-def main():
+def main(what):
 	NS = NightlyService()
-	NS.fetchTweets()
-main()
+	if what == "followers":
+		print("followers will be fetched")
+		NS.updateFollowers()
+	elif what == "tweets":
+		print("Tweets will be fetched")
+		NS.fetchTweets()
+	else:
+		print("Wrong argument, Die")
+
+if __name__ == "__main__":
+	if len(sys.argv) != 2:
+		print("Supplie exactly one argument, either followers or tweets")
+	else:
+		main(str(sys.argv[1]))
+
