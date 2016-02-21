@@ -45,6 +45,28 @@ class LoadTweets:
             return None
         return id[0] if id[0] != -1 else None
 
+    def hashtagHelper(self, data):
+        for tag in data.hashtags:
+            try:
+                self.db.cursor.execute("INSERT INTO tag(tag) VALUES (%s)",(tag,))
+            except:
+                pass
+            finally:
+                self.db.commit()
+
+            try:
+                self.db.cursor.execute("SELECT tagId FROM tag WHERE tag=%s",(tag,))
+            except:
+                pass
+
+            try:
+                tagId = self.db.cursor.fetchone()[0]
+                self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",(data.id,tagId,))
+            except:
+                pass
+            finally:
+                self.db.commit()
+
 
     def getTweets(self,userId):
 
@@ -54,8 +76,6 @@ class LoadTweets:
         tweets = []
 
         while True:
-
-            
             try:
                 response = self.conn.connection().get_user_timeline(user_id = userId,
                                     count=200,include_rts = False, trim_user = True, max_id = maxId, since_id = sinceId)
@@ -72,28 +92,7 @@ class LoadTweets:
                         pass
                     finally:
                         self.db.commit()
-
-                    for tag in data.hashtags:
-                        try:
-                            self.db.cursor.execute("INSERT INTO tag(tag) VALUES (%s)",(tag,))
-                        except:
-                            pass
-                        finally:
-                            self.db.commit()
-
-                        try:
-                            self.db.cursor.execute("SELECT tagId FROM tag WHERE tag=%s",(tag,))
-                        except:
-                            pass
-
-                        try:
-                            self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",
-                                                   (data.id,self.db.cursor.fetchone()[0],))
-                        except:
-                            pass
-                        finally:
-                            self.db.commit()
-
+                    self.hashtagHelper(data)
 
                     maxId = data.id-1
         
