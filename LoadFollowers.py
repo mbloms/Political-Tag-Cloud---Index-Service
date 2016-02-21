@@ -15,7 +15,8 @@ class LoadFollowers():
 
         # Create temp table for follows
         try:
-            self.db.cursor.execute("CREATE TABLE %s(followedId BIGINT REFERENCES usr(userId),followerId BIGINT REFERENCES usr(userId),PRIMARY KEY(followedId, followerId))"  % (tempTableName))
+            self.db.cursor.execute("CREATE TABLE %s(followedId BIGINT REFERENCES usr(userId),followerId BIGINT "+
+                                   "REFERENCES usr(userId),PRIMARY KEY(followedId, followerId))"  % (tempTableName))
         except:
             pass
         finally:
@@ -56,7 +57,8 @@ class LoadFollowers():
                     groupId = self.db.cursor.fetchone()[0]
 
                     try:
-                        self.db.cursor.execute("INSERT INTO userInGroup(groupId, userId) VALUES (%s, %s)",(groupId, user,))
+                        self.db.cursor.execute("INSERT INTO userInGroup(groupId, userId) VALUES (%s, %s)",
+                                               (groupId, user,))
                     except:
                         pass
                     finally:
@@ -90,7 +92,9 @@ class LoadFollowers():
                     try:
                         #Need the weird syntax
                         #Link: http://stackoverflow.com/questions/9354392/psycopg2-cursor-execute-with-sql-query-parameter-causes-syntax-error
-                        self.db.cursor.execute("INSERT INTO %s(followedId,followerId) VALUES (%s,%s)" % (self.tempTableName, "%s", "%s"),(followedId,followerId,))
+                        self.db.cursor.execute("INSERT INTO %s(followedId,followerId)" +
+                                               " VALUES (%s,%s)" % (self.tempTableName, "%s", "%s"),
+                                               (followedId,followerId,))
 
                     except:
                         pass 
@@ -116,15 +120,19 @@ class LoadFollowers():
         """
         print("Calculating new followers...")
         # Caluclate new followers
-        self.db.cursor.execute("(SELECT followedId, followerId FROM " + self.tempTableName + ") EXCEPT (SELECT followedId, followerId FROM following)")
+        self.db.cursor.execute("(SELECT followedId, followerId FROM " + self.tempTableName +
+                               ") EXCEPT (SELECT followedId, followerId FROM following)")
         for follows in self.db.cursor.fetchall():
-            self.db.cursor.execute("INSERT INTO startfollow(followedId, followerId) VALUES (%s, %s)", (follows[0], follows[1]))
+            self.db.cursor.execute("INSERT INTO startfollow(followedId, followerId) VALUES (%s, %s)",
+                                   (follows[0], follows[1]))
         self.db.commit()
         print("Calculating unfollows...")
         # Caluclate unfollows
-        self.db.cursor.execute("(SELECT followedId, followerId FROM following) EXCEPT (SELECT followedId, followerId FROM " + self.tempTableName + ")")
+        self.db.cursor.execute("(SELECT followedId, followerId FROM following) EXCEPT (SELECT followedId, followerId FROM "
+                               + self.tempTableName + ")")
         for unfollows in self.db.cursor.fetchall():
-            self.db.cursor.execute("INSERT INTO unfollow(followedId, followerId) VALUES (%s, %s)", (unfollows[0], unfollows[1]))
+            self.db.cursor.execute("INSERT INTO unfollow(followedId, followerId) VALUES (%s, %s)",
+                                   (unfollows[0], unfollows[1]))
         self.db.commit()
         print("Deleting and renaming table")
         # Delete temporary table by deleting the old one and renaming the temporary one

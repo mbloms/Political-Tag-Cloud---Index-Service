@@ -5,7 +5,8 @@ class Database:
     def __init__(self):
         conf = DC.DatabaseConfig("config/dbconfig.json","testdb")
         try:
-            self.conn = psycopg2.connect(database=conf.database, user=conf.user, password=conf.password, host=conf.host, port=conf.port)
+            self.conn = psycopg2.connect(database=conf.database, user=conf.user, password=conf.password,
+                                         host=conf.host, port=conf.port)
 
             self.cursor = self.conn.cursor()
         except:
