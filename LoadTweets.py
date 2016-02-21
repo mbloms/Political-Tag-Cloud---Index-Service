@@ -49,9 +49,8 @@ class LoadTweets:
 
     def getLastTweetId(self, userid):
         """Returns the latest twitter id,if the user does not exists or have not tweeted we return None"""
-        self.db.cursor.execute("SELECT coalesce(tweetid,-1)AS tweetid FROM usr" +
-                             " NATURAL LEFT JOIN tweet WHERE userid = %s ORDER BY TIMESTAMP DESC LIMIT 1"
-                               ,(userid,))
+        self.db.cursor.execute("SELECT coalesce(MAX(tweetid),-1)AS tweetid FROM usr NATURAL LEFT JOIN tweet "+
+                               "WHERE userid = 341958765",(userid))
         id = self.db.cursor.fetchone()
         if id == None:
             return None
