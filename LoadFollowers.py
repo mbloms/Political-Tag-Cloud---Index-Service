@@ -20,8 +20,6 @@ class LoadFollowers():
             pass
         finally:
             self.db.commit()
-        self.getUsersFollowers()
-        self.calculateFollowingDiffAndClean()
 
     def close(self):
         self.db.close()
@@ -68,6 +66,7 @@ class LoadFollowers():
                 print("KeyboardInterrupt catched, running the calculateFollowingDiffAndClean method before shutdown")
                 self.calculateFollowingDiffAndClean()
                 sys.exit(0)
+        self.calculateFollowingDiffAndClean()
 
 
     """Get all followers from a specifik twitter user and and the follower to the database"""

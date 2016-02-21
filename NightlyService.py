@@ -5,6 +5,7 @@ import LoadFollowers as LF
 import LoadTweets as LT
 import Database
 import datetime
+import time
 
 class NightlyService:
 	""" 
@@ -23,14 +24,22 @@ class NightlyService:
 		self.loadFollowers.getUsersFollowers()
 		self.loadFollowers.close()
 
-	def loadTweets(self):
+	def fetchTweets(self):
 		self.db.cursor.execute("SELECT userId FROM usr")
 		users = self.db.cursor.fetchall()
+		counter = 0
+		print("Start loading tweets; number of users: " + str(len(users)))
 		for user in users:
-			print("Fetching tweets for user " + user)
+			counter += 1
+			print("#" + str(counter) + " " + str(user[0]))
+			start = time.time()
+			self.loadTweets.getTweets(user[0])
+			end = time.time()
+			print("Duration: " + str(end - start))
+			print("---")
 
 
 def main():
 	NS = NightlyService()
-	NS.updateFollowers()
+	NS.fetchTweets()
 main()
