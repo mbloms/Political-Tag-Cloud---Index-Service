@@ -7,12 +7,14 @@ import datetime
 import json
  
 class Tweet:
-    def __init__(self,id,userId,timestamp,content,hashtags):
+    def __init__(self,id,userId,timestamp,content,hashtags,mentions,retweet):
         self.id = id
         self.userId = userId
         self.timestamp = timestamp
         self.content = content
         self.hashtags = hashtags
+        self.mentions = mentions
+        self.retweet = retweet
 
     def __str__(self):
         output = "ID: " + str(self.id) + " | userID: " + str(self.userId) + " | timestamp: " + str(self.timestamp) + \
@@ -29,11 +31,21 @@ class LoadTweets:
         for hashtag in (tweet['entities']['hashtags']):
             hashtags.append(hashtag['text'])
 
+        retweet = None
+        if(tweet['retweeted']): # This is a retweeted tweet, store info about original
+            retweet = []
+            retweet['creatorId'] = tweet['retweeted_status']['user']['id']
+            retweeet['originalTweetId'] = tweet['retweeted_status']['id']
+           
+        mentions = [] 
+        for mention in (tweet['entities']['user_mentions']):
+            mentions.append(mention['id'])
+
         id = tweet['id']
         timestamp = tweet['created_at']
         content = tweet['text']
 
-        return Tweet(id,userId,timestamp,content,hashtags)
+        return Tweet(id,userId,timestamp,content,hashtags,mentions,retweet)
 
     def getLastTweetId(self, userid):
         """Returns the latest twitter id,if the user does not exists or have not tweeted we return None"""
@@ -67,6 +79,26 @@ class LoadTweets:
             finally:
                 self.db.commit()
 
+    def mentionHelper(self, data):
+        for mention in data.mentions:
+            try:
+                self.db.cursor.execute("INSERT INTO tweetMention(tweetId,userId) VALUES (%s,%s)",(data.id,mention,))
+            except:
+                pass
+            finally:
+                self.db.commit()
+
+    def retweetHelper(self, data):
+        retweet = data.retweet
+        if retweet != None:
+            print("This is a retweeted tweet")
+            try:
+                self.db.cursor.execute("INSERT INTO retweet(tweetId,creatorId,originalTweetId) VALUES (%s,%s)",(data.id,retweet.creatorId, retweet.originalTweetId,))
+            except:
+                pass
+            finally:
+                self.db.commit()
+
 
     def getTweets(self,userId):
 
@@ -93,6 +125,8 @@ class LoadTweets:
                     finally:
                         self.db.commit()
                     self.hashtagHelper(data)
+                    self.mentionHelper(data)
+                    self.retweetHelper(data)
 
                     maxId = data.id-1
         
