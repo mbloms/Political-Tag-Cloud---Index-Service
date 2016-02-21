@@ -15,9 +15,9 @@ class NightlyService:
 	"""
 	def __init__(self):
 		self.conn = CL.ConnectionList(filepath="config/access.conf") 
-        self.db = Database.Database()
-        self.loadFollowers = LF.LoadFollowers()
-        self.loadTweets = LT.LoadTweets()
+		self.db = Database.Database()
+		self.loadFollowers = LF.LoadFollowers()
+		self.loadTweets = LT.LoadTweets()
 
 	def updateFollowers(self):
 		self.loadFollowers.getUsersFollowers()

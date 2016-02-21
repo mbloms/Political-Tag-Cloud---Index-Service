@@ -1,6 +1,6 @@
 CREATE TABLE grp(
 	groupId SERIAL PRIMARY KEY,
-	name VARCHAR(50)
+	name VARCHAR(50) UNIQUE
 );
 CREATE TABLE usr(
 	userId BIGINT PRIMARY KEY
@@ -49,14 +49,14 @@ CREATE TABLE unfollow(
 	unfollowId SERIAL PRIMARY KEY,
 	followedId BIGINT REFERENCES usr(userId),
 	followerId BIGINT REFERENCES usr(userId),
-	timestamp TIMESTAMP
+	timestamp TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE startfollow(
 	unfollowId SERIAL PRIMARY KEY,
 	followedId BIGINT REFERENCES usr(userId),
 	followerId BIGINT REFERENCES usr(userId),
-	timestamp TIMESTAMP
+	timestamp TIMESTAMP DEFAULT now()
 );
 
 
