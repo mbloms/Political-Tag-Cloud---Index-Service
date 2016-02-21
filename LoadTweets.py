@@ -62,7 +62,6 @@ class LoadTweets:
 
                 for jsontw in response:
                     data = self.jsonToTweet(userId,jsontw)
-                    print(data)
                     try:
                         self.db.cursor.execute("INSERT INTO tweet(tweetId,userId,timestamp,content) VALUES (%s,%s,%s,%s)",(data.id,data.userId,data.timestamp,data.content,))
                     except: 
