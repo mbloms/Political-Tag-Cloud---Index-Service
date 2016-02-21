@@ -14,6 +14,10 @@ class Tweet:
         self.content = content
         self.hashtags = hashtags
 
+    def __str__(self):
+        output = "ID: " + str(self.id) + " | userID: " + str(self.userId) + " | timestamp: " + str(self.timestamp) + " | content: " + str(self.content) + " | Hashtags: " + ' '.join(self.hashtags)
+        return output
+
 class LoadTweets:
     def __init__(self):
         self.db = Database.Database()
@@ -58,6 +62,7 @@ class LoadTweets:
 
                 for jsontw in response:
                     data = self.jsonToTweet(userId,jsontw)
+                    print(data)
                     try:
                         self.db.cursor.execute("INSERT INTO tweet(tweetId,userId,timestamp,content) VALUES (%s,%s,%s,%s)",(data.id,data.userId,data.timestamp,data.content,))
                     except: 
@@ -65,14 +70,26 @@ class LoadTweets:
                     finally:
                         self.db.commit()
 
+                    for tag in data.hashtags:
+                        print("Handling tag " + tag)
+                        try:
+                            self.db.cursor.execute("INSERT INTO tag(tag) VALUES (%s)",(tag,))
+                        except:
+                            pass
+                        finally:
+                            self.db.commit()
 
-                    try:
-                        for tag in data.hashtags:
-                            self.db.cursor.execute("INSERT INTO tweettag(tweetId,tag) VALUES (%s,%s)",(data.id,tag,))
-                    except: 
-                        pass
-                    finally:
-                        self.db.commit()
+                        try:
+                            self.db.cursor.execute("SELECT tagId FROM tag WHERE tag=%s",(tag,))
+                        except:
+                            pass
+
+                        try:
+                            self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",(data.id,db.cursor.fetchone()[0],))
+                        except:
+                            pass
+                        finally:
+                            self.db.commit()
 
 
                     maxId = data.id-1
