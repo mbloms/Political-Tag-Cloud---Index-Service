@@ -74,7 +74,6 @@ class LoadTweets:
                         self.db.commit()
 
                     for tag in data.hashtags:
-                        print("Handling tag " + tag)
                         try:
                             self.db.cursor.execute("INSERT INTO tag(tag) VALUES (%s)",(tag,))
                         except:
