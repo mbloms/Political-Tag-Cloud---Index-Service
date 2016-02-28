@@ -93,7 +93,7 @@ class LoadTweets:
             while True:
                 try:
                     response = self.conn.connection().get_user_timeline(user_id = userId,
-                                        count=200,include_rts = False, trim_user = True, max_id = maxId, since_id = sinceId)
+                                        count=200,include_rts = True, trim_user = True, max_id = maxId, since_id = sinceId)
     
                     if response == []:
                         break
