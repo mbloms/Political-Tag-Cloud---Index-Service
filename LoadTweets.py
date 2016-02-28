@@ -57,78 +57,73 @@ class LoadTweets:
 
     def hashtagHelper(self, data):
         """ Fetch hashtags from data and add the sufficient relations """
-        try:
-            for tag in data.hashtags:
+        for tag in data.hashtags:
+            try:
                 self.db.cursor.execute("INSERT INTO tag(tag) VALUES (%s) returning tagid",(tag,))
+            except IntegrityError:
+                self.db.cursor.execute("SELECT tagId FROM tag WHERE tag=%s",(tag,))
+            finally:
                 tagId = self.db.cursor.fetchone()[0]
                 self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",(data.id,tagId,))
-        except Exception as e:
-            print(e)
 
     def mentionHelper(self, data):
         """ Fetch mentions from data and add the sufficient relations """
-        try:
-            for mention in data.mentions:
-                self.db.cursor.execute("INSERT INTO tweetMention(tweetId,userId) VALUES (%s,%s)",(data.id,mention,))
-        except Exception as e:
-            print(e)
+        for mention in data.mentions:
+            self.db.cursor.execute("INSERT INTO tweetMention(tweetId,userId) VALUES (%s,%s)",(data.id,mention,))
+
 
     def retweetHelper(self, data):
         """ Fetch retweet info from data and add the sufficient relations """
         retweet = data.retweet
-        try:
-            if retweet != None:
-                print("This is a retweeted tweet")
-                self.db.cursor.execute("INSERT INTO retweet(tweetId,creatorId,originalTweetId) VALUES (%s,%s)",(data.id,retweet.creatorId, retweet.originalTweetId,))
-        except Exception as e:
-            print(e)
+        if retweet != None:
+            print("This is a retweeted tweet")
+            self.db.cursor.execute("INSERT INTO retweet(tweetId,creatorId,originalTweetId) VALUES (%s,%s)",(data.id,retweet.creatorId, retweet.originalTweetId,))
 
 
     def getTweets(self,userId):
 
-        maxId = None
-        sinceId = self.getLastTweetId(userId)
-
-        while True:
-            try:
-                response = self.conn.connection().get_user_timeline(user_id = userId,
-                                    count=200,include_rts = False, trim_user = True, max_id = maxId, since_id = sinceId)
-
-                if response == []:
-                    break
-
-                for jsontw in response:
-                    data = self.jsonToTweet(userId,jsontw)
-                    try:
-                        self.db.cursor.execute("INSERT INTO tweet(tweetId,userId,timestamp,content) VALUES (%s,%s,%s,%s)",
-                                               (data.id,data.userId,data.timestamp,data.content,))
-                    except Exception as e:
-                        print(e)
-
-                    self.hashtagHelper(data)
-                    self.mentionHelper(data)
-                    self.retweetHelper(data)
-
-
-                    maxId = data.id-1
-        
-                            
-            except TwythonAuthError:
-                print("Private account")
-                #Add to blacklist
-                break
-                
-            except TwythonRateLimitError as err:
-                print(":(")
-                print(err)
-                print(datetime.datetime.now())
-                time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min 
-                print(":)")  
-            except TwythonError as err: #Handel timeouts
-                print("Error:")
-                print(err)
-
         try:
+    
+            maxId = None
+            sinceId = self.getLastTweetId(userId)
+    
+            while True:
+                try:
+                    response = self.conn.connection().get_user_timeline(user_id = userId,
+                                        count=200,include_rts = False, trim_user = True, max_id = maxId, since_id = sinceId)
+    
+                    if response == []:
+                        break
+    
+                    for jsontw in response:
+                        data = self.jsonToTweet(userId,jsontw)
+                        
+                        self.db.cursor.execute("INSERT INTO tweet(tweetId,userId,timestamp,content) VALUES (%s,%s,%s,%s)",
+                                                   (data.id,data.userId,data.timestamp,data.content,))
+    
+                        self.hashtagHelper(data)
+                        self.mentionHelper(data)
+                        self.retweetHelper(data)
+    
+    
+                        maxId = data.id-1
+            
+                except TwythonAuthError:
+                    print("Private account")
+                    #Add to blacklist
+                    break
+                    
+                except TwythonRateLimitError as err:
+                    print(":(")
+                    print(err)
+                    print(datetime.datetime.now())
+                    time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min 
+                    print(":)")  
+                except TwythonError as err: #Handel timeouts
+                    print("Error:")
+                    print(err)
+    
             self.db.commit()
         except Exception as e:
+            print("Something went wrong at user with id "+ userId + ". Skipping user...\n")
             print(e)
