@@ -49,8 +49,8 @@ class LoadTweets:
 
     def getLastTweetId(self, userid):
         """Returns the latest twitter id,if the user does not exists or have not tweeted we return None"""
-        self.db.cursor.execute("SELECT coalesce(MAX(tweetid),-1)AS tweetid FROM usr NATURAL LEFT JOIN tweet "+
-                               "WHERE userid = 341958765",(userid))
+        self.db.cursor.execute("SELECT coalesce(MAX(tweetid),-1) AS tweetid FROM tweet"+
+                               "WHERE userid = %s",(userid))
         id = self.db.cursor.fetchone()
         if id == None:
             return None
@@ -58,56 +58,38 @@ class LoadTweets:
 
     def hashtagHelper(self, data):
         """ Fetch hashtags from data and add the sufficient relations """
-        for tag in data.hashtags:
-            try:
+        try:
+            for tag in data.hashtags:
                 self.db.cursor.execute("INSERT INTO tag(tag) VALUES (%s)",(tag,))
-            except:
-                pass
-            finally:
-                self.db.commit()
-
-            try:
                 self.db.cursor.execute("SELECT tagId FROM tag WHERE tag=%s",(tag,))
-            except:
-                pass
-
-            try:
                 tagId = self.db.cursor.fetchone()[0]
                 self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",(data.id,tagId,))
-            except:
-                pass
-            finally:
-                self.db.commit()
+        except Exception as e:
+            print(e)
 
     def mentionHelper(self, data):
         """ Fetch mentions from data and add the sufficient relations """
-        for mention in data.mentions:
-            try:
+        try:
+            for mention in data.mentions:
                 self.db.cursor.execute("INSERT INTO tweetMention(tweetId,userId) VALUES (%s,%s)",(data.id,mention,))
-            except:
-                pass
-            finally:
-                self.db.commit()
+        except Exception as e:
+            print(e)
 
     def retweetHelper(self, data):
         """ Fetch retweet info from data and add the sufficient relations """
         retweet = data.retweet
-        if retweet != None:
-            print("This is a retweeted tweet")
-            try:
+        try:
+            if retweet != None:
+                print("This is a retweeted tweet")
                 self.db.cursor.execute("INSERT INTO retweet(tweetId,creatorId,originalTweetId) VALUES (%s,%s)",(data.id,retweet.creatorId, retweet.originalTweetId,))
-            except:
-                pass
-            finally:
-                self.db.commit()
+        except Exception as e:
+            print(e)
 
 
     def getTweets(self,userId):
 
         maxId = None
         sinceId = self.getLastTweetId(userId)
-
-        tweets = []
 
         while True:
             try:
@@ -122,13 +104,13 @@ class LoadTweets:
                     try:
                         self.db.cursor.execute("INSERT INTO tweet(tweetId,userId,timestamp,content) VALUES (%s,%s,%s,%s)",
                                                (data.id,data.userId,data.timestamp,data.content,))
-                    except: 
-                        pass
-                    finally:
-                        self.db.commit()
+                    except Exception as e:
+                        print(e)
+
                     self.hashtagHelper(data)
                     self.mentionHelper(data)
                     self.retweetHelper(data)
+
 
                     maxId = data.id-1
         
@@ -147,3 +129,8 @@ class LoadTweets:
             except TwythonError as err: #Handel timeouts
                 print("Error:")
                 print(err)
+
+        try:
+            self.db.commit()
+        except Exception as e:
+            print(e)
