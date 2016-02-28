@@ -127,6 +127,7 @@ class LoadTweets:
                     print(err)
             self.db.commit()
         except Exception as e:
+            self.db.conn.rollback()
             print("Something went wrong at user with id "+ str(userId) + ". Skipping user...\n")
             print(e)
             traceback.print_exc()
