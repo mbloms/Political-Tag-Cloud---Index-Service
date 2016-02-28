@@ -49,8 +49,7 @@ class LoadTweets:
 
     def getLastTweetId(self, userid):
         """Returns the latest twitter id,if the user does not exists or have not tweeted we return None"""
-        self.db.cursor.execute("SELECT coalesce(MAX(tweetid),-1) AS tweetid FROM tweet"+
-                               "WHERE userid = %s",(userid))
+        self.db.cursor.execute("SELECT tweetid FROM tweet WHERE userid = (%s) ORDER BY timestamp DESC LIMIT 1",(userid))
         id = self.db.cursor.fetchone()
         if id == None:
             return None
@@ -60,8 +59,7 @@ class LoadTweets:
         """ Fetch hashtags from data and add the sufficient relations """
         try:
             for tag in data.hashtags:
-                self.db.cursor.execute("INSERT INTO tag(tag) VALUES (%s)",(tag,))
-                self.db.cursor.execute("SELECT tagId FROM tag WHERE tag=%s",(tag,))
+                self.db.cursor.execute("INSERT INTO tag(tag) VALUES (%s) returning tagid",(tag,))
                 tagId = self.db.cursor.fetchone()[0]
                 self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",(data.id,tagId,))
         except Exception as e:
