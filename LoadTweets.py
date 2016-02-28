@@ -125,5 +125,5 @@ class LoadTweets:
     
             self.db.commit()
         except Exception as e:
-            print("Something went wrong at user with id "+ userId + ". Skipping user...\n")
+            print("Something went wrong at user with id "+ str(userId) + ". Skipping user...\n")
             print(e)
