@@ -6,6 +6,7 @@ import Database
 import datetime
 import json
 import traceback
+import psycopg2
  
 class Tweet:
     def __init__(self,id,userId,timestamp,content,hashtags,mentions,retweet):
@@ -50,18 +51,19 @@ class LoadTweets:
 
     def getLastTweetId(self, userid):
         """Returns the latest twitter id,if the user does not exists or have not tweeted we return None"""
-        self.db.cursor.execute("SELECT tweetid FROM tweet WHERE userid = (%s) ORDER BY timestamp DESC LIMIT 1",(userid))
+        self.db.cursor.execute("SELECT tweetid FROM tweet WHERE userid = %s ORDER BY timestamp DESC LIMIT 1",(userid,))
         id = self.db.cursor.fetchone()
         if id == None:
             return None
-        return id[0] if id[0] != -1 else None
+        return id[0]
 
     def hashtagHelper(self, data):
         """ Fetch hashtags from data and add the sufficient relations """
         for tag in data.hashtags:
             try:
                 self.db.cursor.execute("INSERT INTO tag(tag) VALUES (%s) returning tagid",(tag,))
-            except IntegrityError:
+            except psycopg2.IntegrityError:
+                self.db.conn.rollback()
                 self.db.cursor.execute("SELECT tagId FROM tag WHERE tag=%s",(tag,))
             finally:
                 tagId = self.db.cursor.fetchone()[0]
@@ -101,10 +103,10 @@ class LoadTweets:
                         
                         self.db.cursor.execute("INSERT INTO tweet(tweetId,userId,timestamp,content) VALUES (%s,%s,%s,%s)",
                                                    (data.id,data.userId,data.timestamp,data.content,))
-    
+                        self.db.commit()
                         self.hashtagHelper(data)
-                        self.mentionHelper(data)
-                        self.retweetHelper(data)
+                        #self.mentionHelper(data)
+                        #self.retweetHelper(data)
     
     
                         maxId = data.id-1
@@ -123,7 +125,6 @@ class LoadTweets:
                 except TwythonError as err: #Handel timeouts
                     print("Error:")
                     print(err)
-    
             self.db.commit()
         except Exception as e:
             print("Something went wrong at user with id "+ str(userId) + ". Skipping user...\n")
