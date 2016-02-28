@@ -5,6 +5,7 @@ import TwitterUsers as TU
 import Database
 import datetime
 import json
+import traceback
  
 class Tweet:
     def __init__(self,id,userId,timestamp,content,hashtags,mentions,retweet):
@@ -127,3 +128,4 @@ class LoadTweets:
         except Exception as e:
             print("Something went wrong at user with id "+ str(userId) + ". Skipping user...\n")
             print(e)
+            traceback.print_exc()
