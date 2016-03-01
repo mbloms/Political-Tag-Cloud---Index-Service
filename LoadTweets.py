@@ -61,14 +61,12 @@ class LoadTweets:
     def hashtagHelper(self, data):
         """ Fetch hashtags from data and add the sufficient relations """
         for tag in data.hashtags:
-            try:
+            self.db.cursor.execute("SELECT tagId FROM tag WHERE tag=%s",(tag,))
+            tagId = self.db.cursor.fetchone()
+            if tagId==None:
                 self.db.cursor.execute("INSERT INTO tag(tag) VALUES (%s) returning tagid",(tag,))
-            except psycopg2.IntegrityError:
-                self.db.conn.rollback()
-                self.db.cursor.execute("SELECT tagId FROM tag WHERE tag=%s",(tag,))
-            finally:
-                tagId = self.db.cursor.fetchone()[0]
-                self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",(data.id,tagId,))
+                tagId = self.db.cursor.fetchone()
+            self.db.cursor.execute("INSERT INTO tweettag(tweetId,tagId) VALUES (%s,%s)",(data.id,tagId,))
 
     def mentionHelper(self, data):
         """ Fetch mentions from data and add the sufficient relations """
@@ -150,5 +148,5 @@ def main():
     except Exception as e:
         obj.db.conn.rollback()
         print("Something went wrong at user with id "+ str(userId) + ". Skipping user...\n", file=sys.stderr)
-        print(e)
+        print(e, file=sys.stderr)
         traceback.print_exc()
