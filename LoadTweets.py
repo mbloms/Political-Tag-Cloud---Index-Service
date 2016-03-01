@@ -7,6 +7,7 @@ import datetime
 import json
 import traceback
 import psycopg2
+import sys
  
 class Tweet:
     def __init__(self,id,userId,timestamp,content,hashtags,mentions,retweet):
@@ -131,3 +132,23 @@ class LoadTweets:
             print("Something went wrong at user with id "+ str(userId) + ". Skipping user...\n")
             print(e)
             traceback.print_exc()
+
+
+def main():
+    obj = LoadTweets() 
+    try:
+        while True:
+            tweet = json.dump(input())
+            data = obj.jsonToTweet(tweet['entities']['user']['id_str'],tweet)
+            obj.cursor.execute("INSERT INTO tweet(tweetId,userId,timestamp,content) VALUES (%s,%s,%s,%s)",
+                                       (data.id,data.userId,data.timestamp,data.content,))
+            obj.hashtagHelper(data)
+            #obj.mentionHelper(data)
+            #obj.retweetHelper(data)
+
+        obj.db.commit()
+    except Exception as e:
+        obj.db.conn.rollback()
+        print("Something went wrong at user with id "+ str(userId) + ". Skipping user...\n", file=sys.stderr)
+        print(e)
+        traceback.print_exc()

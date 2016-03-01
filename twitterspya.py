@@ -5,14 +5,24 @@ import sys
 import datetime
 import time
 
+def readUserId(modMode):
+    if not modMode:
+        return input()
+
+    userId = input()
+    while (userId % sys.argv[1] != sys.argv[2]):
+        userId = input()
+    return userId
 
 def main():
+    TRIES = 10
+    timeout = 1
     conn = CL.ConnectionList(filepath="config/access.conf")
-    userId = input()
-    #if len(sys.argv) != 0:
-    #    while(sys.argv[0]!=userId):
-    #            userId = input()
+    modMode = False
+    if len(sys.argv) != 0 and sys.argv[0]=='%':
+        modMode = True
     maxId = None
+    userId = readUserId(modMode)
     printcount = 0
     first = 0
     start = time.time()
@@ -22,36 +32,36 @@ def main():
             while response == []:
                 end = time.time()
                 last = printcount
-                print("Duration: " + str(end - start), file=sys.stderr)
-                print("Tweets: " + str(last - first), file=sys.stderr)
+                print("User Id: " +'\t'+ str(userId.strip()), file=sys.stderr)
+                print("Tweets: " +'\t'+ str(last - first), file=sys.stderr)
+                print("Duration: " +'\t'+ str(end - start)+'\n', file=sys.stderr)
                 start = time.time()
                 first = printcount
-                userId = input()
+                userId = readUserId(modMode)
                 maxId = None
                 response = conn.connection().get_user_timeline(user_id = userId,count=200,include_rts = True, trim_user = True, max_id = maxId)
 
             for stuff in response:
                 print(stuff)
                 printcount += 1
-                #if(printcount%1000==0):
-                #    print(printcount, file=sys.stderr)
-
-
 
             maxId = response[-1]['id']-1
 
         except TwythonAuthError:
                     print("{'privateaccount':"+str(userId)+"}")
-                    userId = input()
+                    userId = readUserId(modMode)
                     maxId = None
                     
                     
         except TwythonRateLimitError as err:
-            print(":(", file=sys.stderr)
-            print(err, file=sys.stderr)
-            print(datetime.datetime.now(), file=sys.stderr)
-            time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min 
-            print(":)", file=sys.stderr)
+            timeout += 1
+            if timeout > TRIES:
+                timeout = 1
+                print(":(", file=sys.stderr)
+                print(err, file=sys.stderr)
+                print(datetime.datetime.now(), file=sys.stderr)
+                time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min 
+                print(":)", file=sys.stderr)
         except TwythonError as err: #Handel timeouts
             print("Error:", file=sys.stderr)
             print(err, file=sys.stderr)
@@ -62,7 +72,7 @@ def main():
             print("{'userId':"+str(userId)+",'maxId':"+str(maxId)+" 'error':'")
             print(other)
             print("'}")
-            userId = input()
+            userId = readUserId(modMode)
             maxId = None
 
 main()
