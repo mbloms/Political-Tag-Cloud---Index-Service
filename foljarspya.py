@@ -26,7 +26,7 @@ def main():
                 response = conn.connection().get_followers_ids(user_id = userId,cursor = cursor)
 
         except TwythonAuthError:
-                    print("Private account", file=sys.stderr)
+                    print("Private account: userId", file=sys.stderr)
                     #Add to blacklist
                     break
                     

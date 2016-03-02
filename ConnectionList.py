@@ -18,6 +18,10 @@ class ConnectionList:
 		return self.arr[self.index]
 	def __rotate(self):
 		self.index = (self.index + 1) % len(self.arr)
+	def size(self):
+		return len(self.arr)
+	def position(self):
+		return self.index
 
 def readFile(filepath):
 	lst = []
