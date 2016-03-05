@@ -19,7 +19,7 @@ create the schemea used for this project.
 # Contribute
 We are strange and use `camelCase` as our coding convetion in this project.
 
-We also trie to follow the gitflow workflow in this project. Read more [here](https://www.atlassian.com/git/tutorials/comparing-workflows/)
+We also try to follow the gitflow workflow in this project. Read more [here](https://www.atlassian.com/git/tutorials/comparing-workflows/)
 
 Find an unattened issue, branch and fix it, then make a pull request to development and we will discusse it.
 
