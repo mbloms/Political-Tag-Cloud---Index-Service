@@ -4,3 +4,5 @@ requests-oauthlib==0.6.0
 twython==3.3.0
 wheel==0.26.0
 psycopg2==2.6.1
+# Elasticsearch 2.x
+elasticsearch>=2.0.0,<3.0.0
