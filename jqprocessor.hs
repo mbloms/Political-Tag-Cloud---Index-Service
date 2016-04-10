@@ -1,72 +1,55 @@
 {-# LANGUAGE DeriveGeneric #-}
-import Data.Aeson
-import Data.Aeson.Types
-import Data.Maybe
-import qualified Data.HashMap.Strict as HM
-import Prelude hiding (lookup, null)
-import qualified Data.ByteString.Lazy.Char8 as BS
+import Data.Aeson (FromJSON, ToJSON, eitherDecode)
+import Data.Maybe (fromMaybe)
+import qualified Data.HashMap.Strict as HM (HashMap, lookup, fromList)
 import Data.ByteString.Lazy.UTF8 (fromString, toString)
-import qualified Data.Text as T
-import qualified Data.Text.IO as T
-import qualified Data.Text.Encoding as T
-import GHC.Generics
-import Data.List
-import qualified Data.List.Utils as LU
-
-
-{-data Tweet = Tweet
-    { user_id :: String
-    , tweet_id :: String
-    , text :: String
-    , hashtags :: [String]
-    , mentions :: [String]
-    , lang :: String
-    , date :: String
-    , rt :: RT 
-    } deriving (Show, Generic)
-
-instance FromJSON Tweet
-instance ToJSON Tweet
-
-data RT = RT
-    { retweet_id :: String
-    , creator_id :: String
-    } deriving (Show, Generic)
-
-instance FromJSON RT
-instance ToJSON RT-}
+import qualified Data.Text.Lazy as T
+import qualified Data.Text.Lazy.IO as T (readFile, getContents, putStr)
+import Data.Text.Lazy.Encoding (encodeUtf8)
+import GHC.Generics (Generic)
+import Data.List (sort, groupBy)
+import qualified Data.List.Utils as LU (merge)
+import Prelude hiding (lookup, fromList, fromString, toString, readFile, getContents)
+import Data.List (intersperse)
 
 data Minimal = Minimal
-    { user_id :: String
-    , hashtags :: [String]
+    { user_id :: T.Text
+    , hashtags :: [T.Text]
     } deriving (Show, Generic)
 
 instance FromJSON Minimal
 instance ToJSON Minimal
 
 main = do
-    input <- getContents
-    let tweets = lines input
+    input <- T.getContents
+    let tweets = T.lines input
     rels <- getRelations
     putLines $ map (insertPol rels) (users tweets)
 
-insertPol :: (HM.HashMap T.Text [T.Text]) -> (String,String) -> String
-insertPol dict (user,('{':tweet)) = "{\"following\":"++following++',':tweet
+insertPol :: (HM.HashMap T.Text [T.Text]) -> (T.Text,T.Text) -> T.Text
+insertPol dict (user,tweet) = T.concat $ p "{\"following\":":following: s ',': T.tail tweet :[]
     where
-        following = show $ fromMaybe [] $ HM.lookup (T.pack user) dict
+        following = toText $ fromMaybe [] $ HM.lookup user dict
+        p = T.pack
+        s = T.singleton
 
-users :: [String] -> [(String,String)]
+
+toText txts = T.concat $ T.pack "[\"" : intersperse (T.pack "\",\"") txts ++ [T.pack "\"]"]
+
+users :: [T.Text] -> [(T.Text,T.Text)]
 users tweets = map minToUser $ filter hasHashtag $ map tuple tweets
     where
-        minimal :: String -> Either String Minimal
-        minimal tweet = eitherDecode (fromString tweet)
+        minimal :: T.Text -> Either String Minimal
+        minimal tweet = eitherDecode (encodeUtf8 tweet)
         hasHashtag :: (Minimal,a) -> Bool
         hasHashtag (x,_) = not $ (hashtags x) == []
+        tuple :: T.Text -> (Minimal, T.Text)
         tuple x =
             if isLeft (minimal x)
-                then (Minimal "" [], "{\"error\":\""++(fromLeft (minimal x))++"\","++tail x)
+                then (Minimal T.empty [], T.concat $ p "{\"error\":\"":p (fromLeft (minimal x)):p "\",":T.tail x:[])
                 else (fromRight (minimal x), x)
         minToUser (m,bs) = (user_id m, bs)
+        p = T.pack
 
 fromRight (Right a) = a
 fromLeft (Left a) = a
@@ -125,8 +108,4 @@ following relations = map friendlist tuples
 groupOn :: Eq b => (a -> b) -> [a] -> [[a]]
 groupOn x = groupBy (flip((==).x).x)
 
---decode $ encode $ toJSON (Hashtag "Hej") :: Maybe Hashtag
-
-nap f a = head $ f [a]
-
-putLines a = putStr (unlines a)
+putLines a = T.putStr (T.unlines a)
