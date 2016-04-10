@@ -1,13 +1,11 @@
-{-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
---import Web.Twitter.Types
+{-# LANGUAGE DeriveGeneric #-}
 import Data.Aeson
 import Data.Aeson.Types
 import Data.Maybe
 import qualified Data.HashMap.Strict as HM
 import Prelude hiding (lookup, null)
---import Text.JSON
---import Text.DeadSimpleJSON
 import qualified Data.ByteString.Lazy.Char8 as BS
+import Data.ByteString.Lazy.UTF8 (fromString, toString)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Text.Encoding as T
@@ -15,8 +13,6 @@ import GHC.Generics
 import Data.List
 import qualified Data.List.Utils as LU
 
-jq :: BS.ByteString
-jq = "{\"user_id\":\"100004471\",\"tweet_id\":\"361441128958017537\",\"text\":\"RT @FlTNESS: Notice how after you workout you just feel better about yourself?  Keep doing it! #fitness #fitforlife http://t.co/wChySSojhP\",\"hashtags\":[\"fitness\",\"fitforlife\"],\"mentions\":[\"479809444\"],\"lang\":\"en\",\"date\":\"Sun Jul 28 11:00:55 +0000 2013\",\"position\":{\"place\":null,\"geo\":null},\"RT\":{\"retweet_id\":\"361365389751492608\",\"creator_id\":\"479809444\"}}"
 
 {-data Tweet = Tweet
     { user_id :: String
@@ -60,17 +56,25 @@ insertPol dict (user,('{':tweet)) = "{\"following\":"++following++',':tweet
         following = show $ fromMaybe [] $ HM.lookup (T.pack user) dict
 
 users :: [String] -> [(String,String)]
-users tweets = map minToUser $ filter (\x->True) $ mapMaybe tuple tweets
+users tweets = map minToUser $ map tuple tweets
     where
-        minimal :: String -> Maybe Minimal
-        minimal tweet = decode (BS.pack tweet)
+        minimal :: String -> Either String Minimal
+        minimal tweet = eitherDecode (fromString tweet)
         hasHashtag :: (Minimal,a) -> Bool
         hasHashtag (x,_) = not $ (hashtags x) == []
         tuple x =
-            if isNothing (minimal x)
-                then Nothing
-                else Just (fromJust (minimal x), x)
+            if isLeft (minimal x)
+                then (Minimal "" [], "{\"error\":\""++(fromLeft (minimal x))++"\","++tail x)
+                else (fromRight (minimal x), x)
         minToUser (m,bs) = (user_id m, bs)
+
+fromRight (Right a) = a
+fromLeft (Left a) = a
+
+isRight :: Either a b -> Bool
+isRight (Right _) = True
+isRight _ = False
+isLeft = not.isRight
 
 getRelations = do
     centern <- T.readFile "lek/c.txt"
