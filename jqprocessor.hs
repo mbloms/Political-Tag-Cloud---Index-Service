@@ -56,7 +56,7 @@ insertPol dict (user,('{':tweet)) = "{\"following\":"++following++',':tweet
         following = show $ fromMaybe [] $ HM.lookup (T.pack user) dict
 
 users :: [String] -> [(String,String)]
-users tweets = map minToUser $ map tuple tweets
+users tweets = map minToUser $ filter hasHashtag $ map tuple tweets
     where
         minimal :: String -> Either String Minimal
         minimal tweet = eitherDecode (fromString tweet)
