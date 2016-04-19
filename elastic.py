@@ -16,7 +16,8 @@ class ElasticImporter:
 			for line in data_file:
 				doc = json.loads(line)
 				user_id = doc["user_id"]
-
+				date = doc["date"]
+				doc["date"] = datetime.strptime(date,"%a %b %d %H:%M:%S %z %Y").isoformat()
 				res = self.es.index(index=self.index,
 					doc_type=self.doc_type, body=doc)
 
