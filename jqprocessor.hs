@@ -11,6 +11,7 @@ import Data.List (sort, groupBy)
 import qualified Data.List.Utils as LU (merge)
 import Prelude hiding (lookup, fromList, fromString, toString, readFile, getContents)
 import Data.List (intersperse)
+import System.Directory
 
 data Minimal = Minimal
     { user_id :: T.Text
@@ -60,24 +61,10 @@ isRight _ = False
 isLeft = not.isRight
 
 getRelations = do
-    centern <- T.readFile "lek/c.txt"
-    kd <- T.readFile "lek/kd.txt"
-    liberalerna <- T.readFile "lek/l.txt"
-    moderaterna <- T.readFile "lek/moderaterna.txt"
-    mp <- T.readFile "lek/mp.txt"
-    sd <- T.readFile "lek/sd.txt"
-    sossarna <- T.readFile "lek/Socialdemokraterna.txt"
-    v <- T.readFile "lek/v.txt"
-    let cs = sort $ relations centern 3796501
-    let kds = sort $ relations kd 19014898
-    let ls = sort $ relations liberalerna 18687011
-    let ms = sort $ relations moderaterna 19226961
-    let mps = sort $ relations mp 18124359
-    let sds = sort $ relations sd 97878686
-    let ss = sort $ relations sossarna 3801501
-    let vs = sort $ relations v 17233550
-    let rels = merge [cs,kds,ls,ms,mps,sds,ss,vs]
-    --putLines $ map show $ HM.toList $ HM.fromList $ following rels
+    files <- listDirectory "tmp"
+    let paths = map ("tmp/"++) files
+    followers <- mapM T.readFile paths
+    let rels = merge $ map sort $ map (uncurry relations) (zip followers (map read files))
     return (HM.fromList $ following rels)
 
 
@@ -96,16 +83,13 @@ merge lst = merge (mhelper lst)
         mhelper (a:b:cs) = LU.merge a b : mhelper cs
         mhelper lst = lst
 
-maybef _ Nothing = Nothing
-maybef f (Just a) = Just (f a)
-
 following :: [(T.Text,T.Text)] -> [(T.Text,[T.Text])]
 following relations = map friendlist tuples
     where
         tuples = (groupOn fst . sort) relations
         friendlist lst = ((fst.head) lst,(map snd lst))
 
-groupOn :: Eq b => (a -> b) -> [a] -> [[a]]
-groupOn x = groupBy (flip((==).x).x)
+        groupOn :: Eq b => (a -> b) -> [a] -> [[a]]
+        groupOn x = groupBy (flip((==).x).x)
 
 putLines a = T.putStr (T.unlines a)
