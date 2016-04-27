@@ -13,6 +13,7 @@ import Prelude hiding (lookup, fromList, fromString, toString, readFile, getCont
 import Data.List (intersperse)
 import System.Directory
 
+--Datatyp för átt hämra id och taggar från varje tweet.
 data Minimal = Minimal
     { user_id :: T.Text
     , hashtags :: [T.Text]
@@ -21,12 +22,21 @@ data Minimal = Minimal
 instance FromJSON Minimal
 instance ToJSON Minimal
 
+{-
+    läser in json-tweeten till listan tweets, delade på radbrytning.
+    Skriver ut tweetsen på samma form med "following"-taggen tillagd i början av varje tweet.
+    Detta genom att insertPol med rels (hashmapen av relationer) som första argument mappas över alla tweets.
+-}
 main = do
     input <- T.getContents
     let tweets = T.lines input
     rels <- getRelations
     putLines $ map (insertPol rels) (users tweets)
 
+{-  Hashmap med användare som nykel och poltikerna den följer som element ->
+    (user_id,json-tweet) ->
+    json-tweet med following-fält tillagt först.
+-}
 insertPol :: (HM.HashMap T.Text [T.Text]) -> (T.Text,T.Text) -> T.Text
 insertPol dict (user,tweet) = T.concat $ p "{\"following\":":following: s ',': T.tail tweet :[]
     where
@@ -34,9 +44,14 @@ insertPol dict (user,tweet) = T.concat $ p "{\"following\":":following: s ',': T
         p = T.pack
         s = T.singleton
 
+        --funktion som tar en lista av typen [Text] och returnerar den som Text på samma sätt som show.
+        toText txts = T.concat $ T.pack "[\"" : intersperse (T.pack "\",\"") txts ++ [T.pack "\"]"]
 
-toText txts = T.concat $ T.pack "[\"" : intersperse (T.pack "\",\"") txts ++ [T.pack "\"]"]
-
+{-
+    Lista av tweets formaterad som json. ->
+    Lista av tuples med user_id som första och tweeten oförändrad som andra.
+    Tweets utan hashtags filtreras bort.
+-}
 users :: [T.Text] -> [(T.Text,T.Text)]
 users tweets = map minToUser $ filter hasHashtag $ map tuple tweets
     where
@@ -60,35 +75,50 @@ isRight (Right _) = True
 isRight _ = False
 isLeft = not.isRight
 
+{-
+    Hämtar alla följare/politiker relationer från mappen tmp och returnerar resultatet som en hashmap.
+    Om öljaren med id a följer politkern b ligger a på en rad i filen med filnamnet b.
+    filinnehållet sorteras och alla filer mergas sen. Detta för att relationerna som hör
+    till en följare ska hamna i följd när de slås ihop med compress.
+-}
 getRelations = do
     files <- listDirectory "tmp"
     let paths = map ("tmp/"++) files
-    followers <- mapM T.readFile paths
-    let rels = merge $ map sort $ map (uncurry relations) (zip followers (map read files))
-    return (HM.fromList $ following rels)
+    followers <- fmap (map T.lines) $ mapM T.readFile paths
+    --innan zip splittas followers i rader och files packas från String till Text
+    let politicians = map T.pack files
+    let rels = merge $ map sort $ map (uncurry relations) (zip followers politicians)
+    return (HM.fromList $ compress rels)
 
-
-relations :: T.Text -> Integer -> [(T.Text,T.Text)]
-relations parti user_id = map tuple followers
+{-
+    Lista av idn som följer -> politiker -> lista med tuples av (alla idn, politikern de följer)
+    Ganska självförklarande.
+-}
+relations :: [T.Text] -> T.Text -> [(T.Text,T.Text)]
+relations followers politician = map tuple followers
     where
-        uid = T.pack $ show user_id
-        followers :: [T.Text]
-        followers = T.lines parti
         tuple :: T.Text -> (T.Text,T.Text)
-        tuple follower = (follower, uid)
-
+        tuple follower = (follower, politician)
+{-
+    Funktion som på samma sätt som merge-sort slår samman redan sorterade listor till en större sorterad.
+-}
 merge [x] = x
 merge lst = merge (mhelper lst)
     where
         mhelper (a:b:cs) = LU.merge a b : mhelper cs
         mhelper lst = lst
 
-following :: [(T.Text,T.Text)] -> [(T.Text,[T.Text])]
-following relations = map friendlist tuples
+{-
+    Tar de elementen i listan som har samma första element och slår ihop dem till ett element.
+    Andra delen av paret blir då istället en lista med alla (politiker) som den första följer.
+-}
+compress :: [(T.Text,T.Text)] -> [(T.Text,[T.Text])]
+compress relations = map friendlist tuples
     where
         tuples = (groupOn fst . sort) relations
         friendlist lst = ((fst.head) lst,(map snd lst))
 
+        --Mysig funktion som grupperar andra argumentet efter resultatet av första, som är en funktion.
         groupOn :: Eq b => (a -> b) -> [a] -> [[a]]
         groupOn x = groupBy (flip((==).x).x)
 
