@@ -1,3 +1,8 @@
+'''
+    Skript för att hämta en eller flera användares följare. 
+    idn på konton läses från stdin och följarnas idn skrivs ut till stdout.
+'''
+
 import ConnectionList as CL
 import json
 from twython import Twython,TwythonRateLimitError,TwythonError,TwythonAuthError
