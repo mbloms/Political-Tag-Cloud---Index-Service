@@ -1,0 +1,23 @@
+Something went wrong when trying to obtain the acces token
+Something went wrong when trying to obtain the acces token
+Traceback (most recent call last):
+  File "följarspya.py", line 16, in main
+    response = conn.connection().get_followers_ids(user_id = userId,cursor = cursor)
+  File "/home/micke/.local/lib/python3.4/site-packages/twython/endpoints.py", line 247, in get_followers_ids
+    return self.get('followers/ids', params=params)
+  File "/home/micke/.local/lib/python3.4/site-packages/twython/api.py", line 265, in get
+    return self.request(endpoint, params=params, version=version)
+  File "/home/micke/.local/lib/python3.4/site-packages/twython/api.py", line 259, in request
+    api_call=url)
+  File "/home/micke/.local/lib/python3.4/site-packages/twython/api.py", line 198, in _request
+    retry_after=response.headers.get('X-Rate-Limit-Reset'))
+twython.exceptions.TwythonRateLimitError: Twitter API returned a 429 (Too Many Requests), Rate limit exceeded
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "följarspya.py", line 55, in <module>
+    main()
+  File "följarspya.py", line 36, in main
+    print("access "+str(conn.position())+" timed out.", file=sys.stderr)
+AttributeError: 'ConnectionList' object has no attribute 'position'

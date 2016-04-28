@@ -1,0 +1,61 @@
+{-# LANGUAGE DeriveGeneric #-}
+import Data.Aeson
+import Data.Maybe
+import GHC.Generics (Generic)
+import Data.Text (Text)
+import qualified Data.ByteString.Lazy.Char8 as BS
+import qualified Data.HashMap.Strict as HM
+
+import System.Process
+import System.Directory
+import Data.Time.Clock.POSIX
+
+{-
+	Läser config-filen och returnerar alla politiker-konton som en IO-lista på Ints.
+-}
+readPoliticians :: IO [Int]
+readPoliticians = do
+	conf <- BS.readFile "config/accounts.config.json"
+	return $ concat $ map users $ HM.elems $ fromJust (decode conf :: Maybe Config)
+
+--Datatyper för att avkoda json.
+type Config = HM.HashMap Text Users
+
+data Users = Users {users :: [Int]} deriving (Show, Generic)
+instance FromJSON Users
+instance ToJSON Users
+
+{-
+	Tar användar-id som input och startar en följarspya-process som laddar ner alla dess följare
+	och sparar dem i filen med samma namn som idt.
+	Returnerar en IO ProcessHandle for processen som startats.
+-}
+foljarspya :: Int -> IO ProcessHandle
+foljarspya uid = spawnCommand $ "echo "++str_id++" | python3 följarspya.py > tmp/"++str_id++" 2>tmp/stderr.txt"
+	where str_id = show uid
+
+{-
+	Skapar mappen tmp, om den inte finns.
+	Hämtar alla politker.
+	Startar hämtningar av alla följare.
+	Väntar på att hämtningarna ska slutföras.
+	Skriver ut mysigt meddelande.
+
+	Notera: 
+		Kollar inte om något går fel.
+		Fel skrivs ut till filen stderr.txt
+-}
+main = do
+	createDirectoryIfMissing True "tmp"
+	politicians <- readPoliticians
+	handles <- mapM foljarspya politicians
+	exitstatuses <- mapM waitForProcess handles
+	print exitstatuses
+	putStrLn "Fetching followers: Done."
+
+
+
+	
+--	timedir <- fmap (show.round) getPOSIXTime
+--	createDirectoryIfMissing True timedir
+--	--callCommand $ "cp tmp/* "++timedir
