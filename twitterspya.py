@@ -1,3 +1,8 @@
+'''
+    Skript för att hämta en eller flera användares tweets. 
+    idn på konton läses från stdin och tweets skrivs ut till stdout.
+'''
+
 from requests.packages.urllib3 import response
 
 #Jag gjorde ett försök med mys options och skit. Funkade inte. Importer behöver rensas.
