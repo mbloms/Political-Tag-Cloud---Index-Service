@@ -149,6 +149,9 @@ sftp-config.json
 #Config folder is now ignored
 config/
 
+#tmp is ignored
+tmp/
+
 
 
 PTC-index-service.iml
