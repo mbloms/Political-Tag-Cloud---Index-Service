@@ -16,6 +16,7 @@ def main():
     #Läs userid från stdin
     userId = input()
     cursor = -1
+    timeout = 1
     while True:
         try:
             #Hämta respons
@@ -46,11 +47,15 @@ def main():
                     break
                     
         except TwythonRateLimitError as err:
-            print(":(", file=sys.stderr)
-            print(err, file=sys.stderr)
-            print(datetime.datetime.now(), file=sys.stderr)
-            time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min 
-            print(":)", file=sys.stderr)
+            timeout += 1
+            print("access "+str(conn.position())+" timed out.", file=sys.stderr)
+            if timeout > conn.size():
+                timeout = 1
+                print(":(", file=sys.stderr)
+                print(err, file=sys.stderr)
+                print(datetime.datetime.now(), file=sys.stderr)
+                time.sleep(60*15+60) #In sec. 60*15 = 15 min + 1min 
+                print(":)", file=sys.stderr)
         except TwythonError as err: #Handel timeouts
             print("Error:", file=sys.stderr)
             print(err, file=sys.stderr)

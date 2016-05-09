@@ -9,6 +9,7 @@ import qualified Data.HashMap.Strict as HM
 import System.Process
 import System.Directory
 import Data.Time.Clock.POSIX
+import System.Exit
 
 {-
 	Läser config-filen och returnerar alla politiker-konton som en IO-lista på Ints.
@@ -31,7 +32,7 @@ instance ToJSON Users
 	Returnerar en IO ProcessHandle for processen som startats.
 -}
 foljarspya :: Int -> IO ProcessHandle
-foljarspya uid = spawnCommand $ "echo "++str_id++" | python3 följarspya.py > tmp/"++str_id++" 2>tmp/stderr.txt"
+foljarspya uid = spawnCommand $ "echo "++str_id++" | python3 foljarspya.py > tmp/"++str_id++" 2>tmp/stderr.txt"
 	where str_id = show uid
 
 {-
@@ -40,6 +41,7 @@ foljarspya uid = spawnCommand $ "echo "++str_id++" | python3 följarspya.py > tm
 	Startar hämtningar av alla följare.
 	Väntar på att hämtningarna ska slutföras.
 	Skriver ut mysigt meddelande.
+	Copierar filerna till en mapp med tidsstämpel som namn.
 
 	Notera: 
 		Kollar inte om något går fel.
@@ -49,13 +51,13 @@ main = do
 	createDirectoryIfMissing True "tmp"
 	politicians <- readPoliticians
 	handles <- mapM foljarspya politicians
-	exitstatuses <- mapM waitForProcess handles
-	print exitstatuses
-	putStrLn "Fetching followers: Done."
+	es <- mapM waitForProcess handles
+	case length . filter (/= ExitSuccess) $ es of
+            0 -> putStrLn "Fetching followers: Done."
+            n -> putStrLn ("There were " ++ show n ++ " failures.")
 
-
-
-	
---	timedir <- fmap (show.round) getPOSIXTime
---	createDirectoryIfMissing True timedir
---	--callCommand $ "cp tmp/* "++timedir
+	timedir <- fmap (("tmp/"++).show.round) getPOSIXTime
+	createDirectoryIfMissing True timedir
+	let backupFile timedir file = copyFile ("tmp/"++file) (timedir++"/"++file)
+	mapM_ (backupFile timedir) ("stderr.txt":(map show politicians))
+	putStrLn "Files copied."
