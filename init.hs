@@ -30,8 +30,8 @@ instance ToJSON Users
 	och sparar dem i filen med samma namn som idt.
 	Returnerar en IO ProcessHandle for processen som startats.
 -}
-foljarspya :: Int -> IO ProcessHandle
-foljarspya uid = spawnCommand $ "echo "++str_id++" | python3 följarspya.py > tmp/"++str_id++" 2>tmp/stderr.txt"
+fetchFollowers :: Int -> IO ProcessHandle
+fetchFollowers uid = spawnCommand $ "echo "++str_id++" | python3 followerFetcher.py > tmp/"++str_id++" 2>tmp/stderr.txt"
 	where str_id = show uid
 
 {-
@@ -48,7 +48,7 @@ foljarspya uid = spawnCommand $ "echo "++str_id++" | python3 följarspya.py > tm
 main = do
 	createDirectoryIfMissing True "tmp"
 	politicians <- readPoliticians
-	handles <- mapM foljarspya politicians
+	handles <- mapM fetchFollowers politicians
 	exitstatuses <- mapM waitForProcess handles
 	print exitstatuses
 	putStrLn "Fetching followers: Done."
