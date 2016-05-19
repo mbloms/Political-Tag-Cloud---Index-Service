@@ -31,7 +31,7 @@ instance ToJSON Users
 	Returnerar en IO ProcessHandle for processen som startats.
 -}
 fetchFollowers :: Int -> IO ProcessHandle
-fetchFollowers uid = spawnCommand $ "echo "++str_id++" | python3 followerFetcher.py > tmp/"++str_id++" 2>tmp/stderr.txt"
+fetchFollowers uid = spawnCommand $ "echo "++str_id++" | python3 followerFetcher.py > tmp/"++str_id++" 2>>tmp/stderr.txt"
 	where str_id = show uid
 
 {-
