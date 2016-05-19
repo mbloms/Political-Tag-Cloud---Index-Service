@@ -31,7 +31,7 @@ instance ToJSON Users
 	Returnerar en IO ProcessHandle for processen som startats.
 -}
 foljarspya :: Int -> IO ProcessHandle
-foljarspya uid = spawnCommand $ "echo "++str_id++" | python3 följarspya.py > tmp/"++str_id++" 2>tmp/stderr.txt"
+foljarspya uid = spawnCommand $ "echo "++str_id++" | python3 foljarspya.py > tmp/"++str_id++" 2>tmp/stderr.txt"
 	where str_id = show uid
 
 {-
