@@ -77,7 +77,7 @@ isLeft = not.isRight
 
 {-
     Hämtar alla följare/politiker relationer från mappen tmp och returnerar resultatet som en hashmap.
-    Om öljaren med id a följer politkern b ligger a på en rad i filen med filnamnet b.
+    Om följaren med id a följer politkern b ligger a på en rad i filen med filnamnet b.
     filinnehållet sorteras och alla filer mergas sen. Detta för att relationerna som hör
     till en följare ska hamna i följd när de slås ihop med compress.
 -}

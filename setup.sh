@@ -1,21 +1,5 @@
 mkdir config
 touch config/access.conf
-echo '{
-    "testdb": {
-        "database": "lcd",
-        "user": "postgres",
-        "password": "asd",
-        "host": "localhost",
-        "port": "5432"
-    },
-    "production": {
-            "database": "lcdprod",
-            "user": "postgres",
-            "password": "asd",
-            "host": "localhost",
-            "port": "5432"
-    }
-}' > config/dbconfig.json
 
 echo '{
     "Moderaterna" : {
