@@ -16,6 +16,7 @@ import datetime
 import time
 import io
 
+
 sinceId = None
 
 def readUserId():
@@ -31,6 +32,10 @@ def readUserId():
         return userId
 
 def main():
+    if not len(sys.argv)>1:
+        mess = ""
+    else:
+        mess = "Process: \t"+str(sys.argv[1])
     maxId = None
     global sinceId
     #variabel som används för att kolla hur många connections som testats innan skriptet sover.
@@ -56,7 +61,9 @@ def main():
                 print("Tweets: " +'\t'+ str(last - first), file=sys.stderr)
                 print("Duration: " +'\t'+ str(end - start), file=sys.stderr)
                 print("Total Fetched: " +'\t'+ str(last), file=sys.stderr)
-                print("Timestamp: " +'\t'+ str(datetime.datetime.now())+'\n', file=sys.stderr)
+                print("Timestamp: " +'\t'+ str(datetime.datetime.now()), file=sys.stderr)
+                print(mess+'\n', file=sys.stderr)
+
                 start = time.time()
                 first = printcount
                 #Läs nästa id, nollställ maxId och hämta ny respons.
@@ -75,7 +82,7 @@ def main():
 
         except TwythonAuthError:
                     #Skriv ut dummy json vid privat konto. på det sättet får inte en jsonparser spasmer, men vi har fortfarande info om de kontona.
-                    print('{"text": "privateaccount", "entities": {"symbols": [], "urls": [], "hashtags": [], "user_mentions": []}, "id": null, "user": {"id_str": "'+str(userId)+'", "id": '+str(userId)+'}, "created_at": null, "is_quote_status": false, "in_reply_to_user_id_str": null, "id_str": null, "lang": null, "place": null, "in_reply_to_user_id": null, "source": null, "in_reply_to_status_id_str": null}')
+                    print('{"text": "privateaccount", "entities": {"symbols": [], "urls": [], "hashtags": [], "user_mentions": []}, "id": null, "user": {"id_str": "'+str(userId)+'", "id": null}, "created_at": null, "is_quote_status": false, "in_reply_to_user_id_str": null, "id_str": null, "lang": null, "place": null, "in_reply_to_user_id": null, "source": null, "in_reply_to_status_id_str": null}')
                     #Läs nästa
                     maxId = None
                     userId = readUserId()

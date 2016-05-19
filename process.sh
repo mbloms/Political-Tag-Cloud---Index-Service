@@ -1,0 +1,9 @@
+echo "Startar bearbetning."
+gzip -cd tmp/dump.part1.gz | jq '{"user_id":.user.id_str, "tweet_id":.id_str, "text":.text, "hashtags":[.entities.hashtags[].text], "mentions":[.entities.user_mentions[].id_str], "lang":.lang, "date":.created_at, "position":{"place":.place, "geo":.geo,"coordinates":.coordinates}, "RT":{"retweet_id":.retweeted_status.id_str, "creator_id":.retweeted_status.user.id_str}}' -cM | ./jqprocessor | sort > tmp/processed.part1.json &
+gzip -cd tmp/dump.part2.gz | jq '{"user_id":.user.id_str, "tweet_id":.id_str, "text":.text, "hashtags":[.entities.hashtags[].text], "mentions":[.entities.user_mentions[].id_str], "lang":.lang, "date":.created_at, "position":{"place":.place, "geo":.geo,"coordinates":.coordinates}, "RT":{"retweet_id":.retweeted_status.id_str, "creator_id":.retweeted_status.user.id_str}}' -cM | ./jqprocessor | sort > tmp/processed.part2.json &
+gzip -cd tmp/dump.part3.gz | jq '{"user_id":.user.id_str, "tweet_id":.id_str, "text":.text, "hashtags":[.entities.hashtags[].text], "mentions":[.entities.user_mentions[].id_str], "lang":.lang, "date":.created_at, "position":{"place":.place, "geo":.geo,"coordinates":.coordinates}, "RT":{"retweet_id":.retweeted_status.id_str, "creator_id":.retweeted_status.user.id_str}}' -cM | ./jqprocessor | sort > tmp/processed.part3.json &
+gzip -cd tmp/dump.part4.gz | jq '{"user_id":.user.id_str, "tweet_id":.id_str, "text":.text, "hashtags":[.entities.hashtags[].text], "mentions":[.entities.user_mentions[].id_str], "lang":.lang, "date":.created_at, "position":{"place":.place, "geo":.geo,"coordinates":.coordinates}, "RT":{"retweet_id":.retweeted_status.id_str, "creator_id":.retweeted_status.user.id_str}}' -cM | ./jqprocessor | sort > tmp/processed.part4.json &
+wait
+echo "Nästan klar, slår ihop filer."
+sort -m tmp/processed.part1.json tmp/processed.part2.json tmp/processed.part3.json tmp/processed.part4.json > everything.json
+echo "Klar. Allt finns nu i filen tmp/everything.json"

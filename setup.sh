@@ -43,3 +43,9 @@ echo '{
         ]
     }
 }' > config/accounts.json
+ghc -O2 init.hs
+ghc -O2 jqprocessor.hs
+ghc -O2 latesttweet.hs
+ghc -O2 split.hs
+echo "Startar hämtning av följare. Vänta.."
+./init
