@@ -62,4 +62,3 @@ main = do
 	mapM_ (backupFile timedir) ("stderr.txt":(map show politicians))
 	putStrLn "Files copied."
 
-
