@@ -32,7 +32,7 @@ instance ToJSON Users
 	Returnerar en IO ProcessHandle for processen som startats.
 -}
 fetchFollowers :: Int -> IO ProcessHandle
-fetchFollowers uid = spawnCommand $ "echo "++str_id++" | python3 followerFetcher.py > tmp/"++str_id++" 2>>tmp/stderr.txt"
+fetchFollowers uid = spawnCommand $ "echo "++str_id++" | python3 followerFetcher.py > tmp/usr/"++str_id++" 2>>tmp/stderr.txt"
 	where str_id = show uid
 
 {-
@@ -49,6 +49,7 @@ fetchFollowers uid = spawnCommand $ "echo "++str_id++" | python3 followerFetcher
 -}
 main = do
 	createDirectoryIfMissing True "tmp"
+	createDirectoryIfMissing True "tmp/usr"
 	politicians <- readPoliticians
 	handles <- mapM fetchFollowers politicians
 	es <- mapM waitForProcess handles
@@ -58,7 +59,7 @@ main = do
 
 	timedir <- fmap (("tmp/"++).show.round) getPOSIXTime
 	createDirectoryIfMissing True timedir
-	let backupFile timedir file = copyFile ("tmp/"++file) (timedir++"/"++file)
-	mapM_ (backupFile timedir) ("stderr.txt":(map show politicians))
+	renameFile "tmp/stderr.txt" (timedir++"/"++"stderr.txt")
+	let backupFile timedir file = copyFile ("tmp/usr/"++file) (timedir++"/"++file)
+	mapM_ (backupFile timedir) (map show politicians)
 	putStrLn "Files copied."
-

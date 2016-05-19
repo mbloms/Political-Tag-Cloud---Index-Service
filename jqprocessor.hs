@@ -82,8 +82,8 @@ isLeft = not.isRight
     till en följare ska hamna i följd när de slås ihop med compress.
 -}
 getRelations = do
-    files <- listDirectory "tmp"
-    let paths = map ("tmp/"++) files
+    files <- listDirectory "tmp/usr"
+    let paths = map ("tmp/usr/"++) files
     followers <- fmap (map T.lines) $ mapM T.readFile paths
     --innan zip splittas followers i rader och files packas från String till Text
     let politicians = map T.pack files
