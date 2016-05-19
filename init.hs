@@ -16,7 +16,7 @@ import System.Exit
 -}
 readPoliticians :: IO [Int]
 readPoliticians = do
-	conf <- BS.readFile "config/accounts.config.json"
+	conf <- BS.readFile "config/accounts.json"
 	return $ concat $ map users $ HM.elems $ fromJust (decode conf :: Maybe Config)
 
 --Datatyper för att avkoda json.
@@ -61,3 +61,5 @@ main = do
 	let backupFile timedir file = copyFile ("tmp/"++file) (timedir++"/"++file)
 	mapM_ (backupFile timedir) ("stderr.txt":(map show politicians))
 	putStrLn "Files copied."
+
+
