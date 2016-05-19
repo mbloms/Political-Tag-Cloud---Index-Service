@@ -15,7 +15,7 @@ import Data.Time.Clock.POSIX
 -}
 readPoliticians :: IO [Int]
 readPoliticians = do
-	conf <- BS.readFile "config/accounts.config.json"
+	conf <- BS.readFile "config/accounts.json"
 	return $ concat $ map users $ HM.elems $ fromJust (decode conf :: Maybe Config)
 
 --Datatyper för att avkoda json.
