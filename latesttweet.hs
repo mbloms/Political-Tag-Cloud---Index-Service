@@ -21,9 +21,9 @@ peels [] = []
 
 unpeel (uid,tid) = Minimal (show uid) (show tid)
 
+--OBS! Tweets från samma användare måste komma i följd för att programmet ska fungera.
 main = do
 	dict <- fmap ((map maximum).(groupOn fst).peels.(map decode).BS.lines) BS.getContents
-	--mapM_ (BS.putStrLn.encode.unpeel) dict
 	mapM_ print dict
 
 groupOn :: Eq b => (a -> b) -> [a] -> [[a]]
