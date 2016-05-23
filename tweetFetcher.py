@@ -28,7 +28,7 @@ def readUserId():
     else:
         (a,b) = userId.split(",")
         userId = int(a[1:])
-        sinceId = int(b[:-1])-1
+        sinceId = int(b[:-1])
         return userId
 
 def main():
